@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react'
-import { Grid2, Box, Table,  TextField, TableHead, TableBody, TableRow, TableCell, CardHeader, Avatar, createTheme, ThemeProvider } from '@mui/material'
+import { Grid2, Box, Table,  TextField, TableHead, TableBody, TableRow, TableCell, CardHeader, Avatar, createTheme, ThemeProvider, Button } from '@mui/material'
 import { GlobalContext } from '../../context/Context'
+import { API } from '../../API/API'
 
 const LeftPage = () => {
 
@@ -67,7 +68,19 @@ const LeftPage = () => {
 
     }
 
-    console.log(msgRecieveNotif)
+    const handleDelete = async()=>{
+      try{
+            
+            await API.deleteAllMessagesTEST()
+            console.log('succesfully deleted')
+
+      }catch(err){
+        console.log(err)
+      }
+
+    }
+
+    // console.log(msgRecieveNotif)
 
     const handleClick = (e)=>{
         // console.log(e)
@@ -117,6 +130,12 @@ const LeftPage = () => {
 
             {/* options */}
             <Box sx={{display: 'flex',justifyContent: 'space-evenly', fontSize: '80%'}}>
+
+
+            <Box sx={{display: 'grid', placeItems: 'center'}}>
+                    <Button onClick={()=> handleDelete()}>DELETE</Button>
+                </Box>
+
                 <Box sx={{display: 'grid', placeItems: 'center'}}>
                     <Avatar src={theUser.photo} alt={theUser.name} />
                     Friend Requests

@@ -1,13 +1,20 @@
 const express = require('express')
 const router = express.Router()
 
-const {sendMsg,test} = require('../controller/controller')
+const {saveIndividualMessage,getIndividualMessages,deleteAllMessagesTEST} = require('../controller/controller')
 
-//send msg to server
-router.post('/send-msg', sendMsg)
+//send individula msg 
+router.post('/save-individual-msg', saveIndividualMessage)
 
-//test
-router.post('/test',test)
+//fetch messages individula
+router.get('/get-individual-msgs', getIndividualMessages)
+
+//delete
+router.delete('/delete',deleteAllMessagesTEST )
+
+
+
+
 
 
 module.exports = router

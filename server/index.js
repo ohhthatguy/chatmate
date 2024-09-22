@@ -1,9 +1,12 @@
 const express = require('express')
 const cors = require('cors')
+require('dotenv').config()
 
 const app = express()
 app.use(cors()) 
 app.use(express.json())
+
+
 
 //routes
 const router = require('./routes/routes')
@@ -13,6 +16,10 @@ app.use('/',router)
 app.listen(4000, ()=>{
   console.log('PORT route is running in 4000')
 })
+
+//database
+const database = require('./database/database')
+database(process.env.DB_URL)
 
 
 //socket config

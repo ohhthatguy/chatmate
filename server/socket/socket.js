@@ -37,10 +37,10 @@ const socket = ()=>{
         io.emit("AllConnectedPeople", connectedSockets)
 
         //sending messages
-        socket.on("send-direct-message", (targetId,message)=>{
-            console.log(`Message from ${socket.id} to ${targetId}: ${message}.`);
+        socket.on("send-direct-message", (userName,msgRecipient,message)=>{
+            console.log(`Message from ${userName} to ${msgRecipient}: ${message}.`);
 
-            socket.to(targetId).emit("mymessage", message , targetId, socket.id)
+            socket.to(msgRecipient).emit("mymessage", message , userName, msgRecipient)
         })
         
 

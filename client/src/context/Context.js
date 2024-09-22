@@ -8,17 +8,13 @@ export const GlobalProvider = ({children}) =>{
 
     const [showAI, setShowAI] = useState(false)
     const [socket,setSocket] = useState()
-    const [recieveMsg, setRecieveMsg] = useState([])
+    const [message, setMessage] = useState([])
     const [msgRecipient, setMsgRecipient] = useState()
     const [userName, setUserName] = useState('')
     const [msgRecieveNotif, setMsgRecieveNotif] = useState([])
 
 
-    const [activePeople,setActivePeople] = useState([{
-        name: 'apple'
-    },{
-        name: 'ball'
-    }])
+    const [activePeople,setActivePeople] = useState([])
 
     
 
@@ -28,7 +24,7 @@ export const GlobalProvider = ({children}) =>{
     })
 
 
-    return (<GlobalContext.Provider value={{showAI,setMsgRecieveNotif, msgRecieveNotif,setMsgRecipient,setUserName,userName,msgRecipient,setRecieveMsg,recieveMsg,setShowAI,socket,setSocket,activePeople,setActivePeople,theUser}}>
+    return (<GlobalContext.Provider value={{showAI,setMsgRecieveNotif, msgRecieveNotif,setMsgRecipient,setUserName,userName,msgRecipient,setMessage,message,setShowAI,socket,setSocket,activePeople,setActivePeople,theUser}}>
 
         {children}
 

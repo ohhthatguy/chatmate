@@ -1,8 +1,11 @@
 import axios from 'axios'
 
 const API_URl = {
-    sendMsgToAI: {method: 'post', url: '/send-msg-AI'},
-    test: {method: 'post', url:'/test'}
+    saveIndividualMessage: {method: 'post', url: '/save-individual-msg'},
+    getIndividualMessages: {method: 'get', url: '/get-individual-msgs'},
+    deleteAllMessagesTEST: {method: 'delete', url: '/delete'} 
+
+   
 }
 
 const axiosInstance = axios.create({
@@ -20,7 +23,8 @@ for(const [key,value] of Object.entries(API_URl) ){
         return axiosInstance({ 
             method: value.method,
             url: value.url,
-            data: value.method=='get' ? '': data
+            data: value.method=='get' ? {}: data,
+            params: value.method=='get' ? data : {}
         })
     }
 
