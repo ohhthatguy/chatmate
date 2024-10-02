@@ -11,7 +11,10 @@ export const GlobalProvider = ({children}) =>{
     const [message, setMessage] = useState([])
     const [msgRecipient, setMsgRecipient] = useState()
     const [userName, setUserName] = useState('')
-    const [msgRecieveNotif, setMsgRecieveNotif] = useState([])
+    // const [msgRecieveNotif, setMsgRecieveNotif] = useState([])
+
+    const [data,setData]=useState({}) //indiviual msg data
+
 
 
     const [activePeople,setActivePeople] = useState([])
@@ -24,7 +27,7 @@ export const GlobalProvider = ({children}) =>{
     })
 
 
-    return (<GlobalContext.Provider value={{showAI,setMsgRecieveNotif, msgRecieveNotif,setMsgRecipient,setUserName,userName,msgRecipient,setMessage,message,setShowAI,socket,setSocket,activePeople,setActivePeople,theUser}}>
+    return (<GlobalContext.Provider value={{showAI,data,setData,setMsgRecipient,setUserName,userName,msgRecipient,setMessage,message,setShowAI,socket,setSocket,activePeople,setActivePeople,theUser}}>
 
         {children}
 

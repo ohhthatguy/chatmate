@@ -21,14 +21,14 @@ const socket = ()=>{
 
     io.on('connection', (socket) => {
 
-        console.log('a user connected with id: ', socket.id);
+        // console.log('a user connected with id: ', socket.id);
 
         socket.join("room1")
 
 
         // all socket in room1
         const roomSockets = io.sockets.adapter.rooms.get('room1');
-        const connectedSockets = Array.from(roomSockets).map(e=>  ({name: e}))
+        const connectedSockets = Array.from(roomSockets).map(e=>  (e))
             // console.log(connectedSockets)
 
 
@@ -39,9 +39,14 @@ const socket = ()=>{
         //sending messages
         socket.on("send-direct-message", (userName,msgRecipient,message)=>{
             console.log(`Message from ${userName} to ${msgRecipient}: ${message}.`);
-
             socket.to(msgRecipient).emit("mymessage", message , userName, msgRecipient)
+
+            //notificaitng
+            socket.to(msgRecipient).emit("notifying-that-message-is-recieved", userName)
         })
+
+        
+
         
 
 

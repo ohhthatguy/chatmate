@@ -3,8 +3,7 @@ import React, {useEffect, useContext} from 'react'
 import { io } from "socket.io-client";
 
 import { GlobalContext } from '../../context/Context';
-import AI from '../Options/AI';
-import { API } from '../../API/API';
+
 import Chatting from './Chatting';
 import Welcome from './Welcome';
 
@@ -32,7 +31,7 @@ const Homepage = () => {
   newSocket.on("AllConnectedPeople", (allConnected)=>{
   
       //all people expect me
-      const temp = allConnected.filter((e)=> e.name!== newSocket.id)
+      const temp = allConnected.filter((e)=> e!== newSocket.id)
       setActivePeople(temp)
   
   })

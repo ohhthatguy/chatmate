@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState,useEffect, useContext, useRef } from 'react'
 import { Grid2, Box, Table,  TextField, TableHead, TableBody, TableRow, TableCell, CardHeader, Avatar, createTheme, ThemeProvider, Button } from '@mui/material'
 import { GlobalContext } from '../../context/Context'
 import { API } from '../../API/API'
@@ -6,10 +6,34 @@ import { API } from '../../API/API'
 const LeftPage = () => {
 
     const [forSearch, setForSearch] = useState([])
-    const {setShowAI, activePeople, theUser,socket,msgRecipient,userName, setMsgRecieveNotif, msgRecieveNotif,  setMsgRecipient} = useContext(GlobalContext)
+    const [notifyThisUser, setNotifyThisUser] = useState([])
+   const parentRow = useRef(null)
+
+    
+
+    const {setShowAI,activePeople, theUser,socket,msgRecipient,userName,message, data, setMsgRecieveNotif, msgRecieveNotif,  setMsgRecipient} = useContext(GlobalContext)
    
     // console.log(activePeople)
-   
+  //  console.log(data)
+  //  console.log(socket)
+
+   useEffect(()=>{
+    //recieveing notif
+    if(socket){
+      // console.log("ehrerere")
+          socket.on("notifying-that-message-is-recieved", (userName)=>{
+            // console.log("msg form",userName )
+            setNotifyThisUser(prev=> [...prev, userName])
+          })
+  
+
+    return ()=>{
+      socket.off("notifying-that-message-is-recieved")
+  }
+}
+
+   },[socket])
+
 
     const theme = createTheme({
         components: {
@@ -62,8 +86,8 @@ const LeftPage = () => {
     const handleSearch = (e)=>{
 
         setForSearch((activePeople.filter((element)=>  {
-            if (element.name.toLowerCase().includes(e.toLowerCase()))
-                return element.name
+            if (element.toLowerCase().includes(e.toLowerCase()))
+                return element
       })))
 
     }
@@ -80,33 +104,49 @@ const LeftPage = () => {
 
     }
 
-    // console.log(msgRecieveNotif)
-
-    const handleClick = (e)=>{
-        // console.log(e)
-
-     
-          setMsgRecipient(e)
-
-        
-
-
-        // socket.emit("send-direct-message", e, recieveMsg)
-
-
-        
-            // socket.on("mymessage", (message)=>{
-            //     console.log(message)
-            // })
+    // console.log(notifyThisUser)
+    //if user has opened the msg already, no need for notification
+    notifyThisUser?.map((ele)=> 
+      {
+      if(ele == msgRecipient){
+        setNotifyThisUser(prev=> prev.filter(item=> item !== msgRecipient))
     }
-    // console.log(msgRecipient)
+  })
 
 
 
-    
+  
+    const handleClick = (e)=>{
+      
+      document.querySelectorAll('.tcell').forEach(item=>{
+      
+        if(item.innerText == e.target.innerText){
+          // console.log('here1')
+          item.style.color ='black'
+          item.style.backgroundColor = 'white'
+        }else{
+          // console.log('here2')
+          item.style.color = 'white'
+          item.style.backgroundColor ='black'
+        }
+      })
+  
+      
+          setMsgRecipient(e.target.innerText)
 
+          
 
-    //   console.log(forSearch)
+          //the clicked user is the user form where msg has come i.e. the sender
+          notifyThisUser?.map((ele)=> 
+            {
+            if(ele == e.target.innerText){
+              setNotifyThisUser(prev=> prev.filter(item=> item !== e.target.innerText))
+          }
+        })
+
+        
+    }
+
 
 
   return (
@@ -121,12 +161,12 @@ const LeftPage = () => {
             </Box>
 
             {/* search for users */}
-                <Box>
+                {/* <Box> */}
                 {/* style={{border: '1px solid wheat', height: '20px', }} */}
                 {/* <ThemeProvider theme={theme}>
                      <TextField helperText='hi' onChange={(e)=> handleSearch(e.target.value)} variant="outlined" color="secondary" />
                 </ThemeProvider> */}
-                </Box>
+                {/* </Box> */}
 
             {/* options */}
             <Box sx={{display: 'flex',justifyContent: 'space-evenly', fontSize: '80%'}}>
@@ -181,28 +221,36 @@ const LeftPage = () => {
                 <TableBody>
 
                     {
+                      //if no searched people, show the active people
+
                         (forSearch.length == 0) ? activePeople.map((e)=>(
 
                           
-                            <TableRow>
+                            <TableRow >
 
-                            <TableCell onClick={(e)=>handleClick(e.target.innerText)} sx={{color:'white'}}>
+                            <TableCell className='tcell' onClick={(e)=>handleClick(e)} sx={{color: 'white', backgroundColor: 'black', ':hover': {
+                              cursor: 'pointer',
+                              transform: 'scale(1.2)'
+                            }}}>
 
-                                {e?.name}
-       
+
+                              {/* add no text in span as the onCLick takes the innerText which might mess up the proess */}
+                                <span style={{ position: 'absolute', left: '90%', borderRadius: '100%',height: '15px', width: '15px', color: 'black',fontSize: '10px',backgroundColor: 'yellow', textAlign: 'center', display: (notifyThisUser.includes(e)) ? 'block' : 'none' }}></span>
+
+                                {e}
+
                             </TableCell>
+
+
 
                             </TableRow>
                         
                         
-                        
-                          
-
                         )) : forSearch.map((e)=>(
                             <TableRow>
                             <TableCell onClick={(e)=>handleClick(e.target.innerText)} sx={{color:'white', boxShadow: ' 0 10px 15px rgba(12, 12, 12, 0.5), 0 4px 6px rgba(255, 255, 255, 0.1)'}}>
 
-                                {e.name}
+                                {e}
                             
                                         
                             </TableCell>

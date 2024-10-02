@@ -11,10 +11,8 @@ import { API } from '../../API/API';
 const Chatting = () => {
 
 const [userMsg, setUserMsg] = useState('')
-const [data,setData]=useState({})
-
-
-const {setMsgRecieveNotif,userName, socket,message, setMessage,msgRecipient} = useContext(GlobalContext)
+const {setMsgRecieveNotif,userName, activePeople, socket,message, setMessage,msgRecipient, setData, data} = useContext(GlobalContext)
+const [peopleRemainingToOpenForFirstTime, setPeopleRemainingToOpenForFirstTime] = useState(activePeople)
 
 // console.log(recieveMsg)
 
@@ -28,7 +26,7 @@ useEffect(()=>{
         console.log(`message: ${message} from ${senderID} to ${recieverID}`)
         console.log("here")
         // setID({senderID: senderID, recieverID: recieverID})
-        setData({message: message, sender: senderID, reciever: recieverID})
+        // setData({message: message, sender: senderID, reciever: recieverID})
         setMessage(prev => [...prev, {message: message, sender: senderID, reciever: recieverID}])
     })
 
@@ -71,6 +69,7 @@ useEffect(()=>{
 
 
 // //this is to get saved messages just for the first time
+
 useEffect(()=>{
     
     const getIndividualMessages = async()=>{
@@ -78,7 +77,7 @@ useEffect(()=>{
         try{
             //get recieved message i.e. sender is reveicer  i.e. we are reciievr i.e. the one that is using the screen is reciever
             const res = await API.getIndividualMessages({reciever: userName, sender: msgRecipient})
-            console.log(res.data)
+            // console.log(res.data)
             setMessage(res.data)
             
             console.log('successfully fetched indiviual message')
@@ -89,24 +88,31 @@ useEffect(()=>{
         }
 
    }
+// 1 2 
+// console.log(peopleRemainingToOpenForFirstTime)
+// console.log(msgRecipient)
 
-  
-        if(userName && msgRecipient){
+            // peopleRemainingToOpenForFirstTime?.forEach(ele =>{
+            //     if(ele == msgRecipient){
+            //         console.log('i amhere')
+            //         getIndividualMessages()
+
+            //         setPeopleRemainingToOpenForFirstTime(prev=> prev.filter(item=> item != msgRecipient))
+            //     }
+            // } )
             getIndividualMessages()
-
-        } 
-    
-
+            
 
     
-},[])
+},[msgRecipient]) //msgRecipient as the recievr changes once more run this to get fresh dataset
+
 
 // console.log(message)
 // console.log('userName: ', userName)
 // console.log('reciver: ', msgRecipient)
 
 const handleClick = ()=>{
-
+//send data
 //open this to make conenction to backend for socketio
 setData({message: userMsg, sender: userName, reciever: msgRecipient})
 setMessage( prev => [ ...prev, {message: userMsg, sender: userName, reciever: msgRecipient}])
@@ -145,7 +151,7 @@ const tempPic = 'https://cdn.pixabay.com/photo/2024/01/25/10/50/mosque-8531576_9
 
 
 
-       <Grid2 item sx={{height: '80vh',border: '2px solid white', display: 'flex',flexDirection: 'column' ,width: '100%', color: 'white'}}>
+       <Grid2 item  sx={{height: '80vh',border: '2px solid white', display: 'flex',flexDirection: 'column' ,width: '100%', color: 'white'}}>
 
                <Box style={{display: 'flex', border: '3px solid green', height: '100%',  flexDirection: 'column', width: '100%',overflowY: 'scroll'  }}>
              
