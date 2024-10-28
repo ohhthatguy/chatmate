@@ -1,4 +1,5 @@
-import {createContext, useState} from 'react'
+import {createContext, useState, useRef} from 'react'
+import { io } from "socket.io-client";
 
 //creating context
 export const GlobalContext = createContext();
@@ -6,33 +7,41 @@ export const GlobalContext = createContext();
 //creating context provider
 export const GlobalProvider = ({children}) =>{
 
-    const [showAI, setShowAI] = useState(false)
-    const [socket,setSocket] = useState()
-    const [message, setMessage] = useState([])
-    const [msgRecipient, setMsgRecipient] = useState()
-    const [userName, setUserName] = useState('')
-    // const [msgRecieveNotif, setMsgRecieveNotif] = useState([])
+    const [localUser, setLocalUser] = useState({
+        name: '',
+        id: '',
+        creator: '',//bool value
+        roomID: ''
+    }) //only one local user
 
-    const [data,setData]=useState({}) //indiviual msg data
+    const [remoteUser, setRemoteUser] = useState([]) //multiple remote user 
+
+    const [message, setMessage] = useState([{ message: 'waiting for People to join...', sender: 'System', senderId: '', roomId: '', isNotification: true}])
+
+    const [socket, setSocket] = useState()
+
+    const onlyRunOnce = useRef(true); //for the production of socket in client side only once
+
+    const [room, setRoom] = useState({
+        roomID: '',
+        roomCreaterName: '',
+        roomCreaterID: ''
+      });
+
+    const [showModal, setShowModal] = useState(true)
+
+    const [openVidCallSelectionModal, setOpenVidCallSelectionModal] = useState(false)
+
+    const [refreshList, setRefreshList] = useState(false)
 
 
 
-    const [activePeople,setActivePeople] = useState([])
-
-    
-
-    const [theUser,setTheUser] = useState({
-        name: 'Bhaskar Thakulla',
-        photo: 'https://media.istockphoto.com/id/1022174454/photo/portrait-of-smiling-handsome-man-in-white-t-shirt-standing-with-crossed-arms-isolated-on-gray.jpg?s=1024x1024&w=is&k=20&c=D2St35Y1evG2cbjXSNb9Pa77_Ae8giaB00P18xrW-aI='
-    })
 
 
-    return (<GlobalContext.Provider value={{showAI,data,setData,setMsgRecipient,setUserName,userName,msgRecipient,setMessage,message,setShowAI,socket,setSocket,activePeople,setActivePeople,theUser}}>
+
+    return (<GlobalContext.Provider value={{localUser,message,room,setRoom, showModal, setShowModal,setMessage, setLocalUser, remoteUser,onlyRunOnce,setRemoteUser, socket, setSocket,openVidCallSelectionModal, setOpenVidCallSelectionModal, refreshList, setRefreshList}} >
 
         {children}
 
     </GlobalContext.Provider>)
 }
-
-
-
