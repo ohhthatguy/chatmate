@@ -31,15 +31,31 @@ export const GlobalProvider = ({children}) =>{
     const [showModal, setShowModal] = useState(true)
 
     const [openVidCallSelectionModal, setOpenVidCallSelectionModal] = useState(false)
+    const [incomingCallModal, setIncomingCallModal] = useState(false)
+    const [showCallEndedText, setShowCallEndedText] = useState('')
+
+    
+
 
     const [refreshList, setRefreshList] = useState(false)
 
 
+    ///////
+    const ICEServerConfig = {
+        iceServers:[
+            {
+                urls:[
+                    'stun:stun.l.google.com:19302',
+                    'stun:stun1.l.google.com:19302'
+                ]
+            }
+        ]
+    }
 
 
 
 
-    return (<GlobalContext.Provider value={{localUser,message,room,setRoom, showModal, setShowModal,setMessage, setLocalUser, remoteUser,onlyRunOnce,setRemoteUser, socket, setSocket,openVidCallSelectionModal, setOpenVidCallSelectionModal, refreshList, setRefreshList}} >
+    return (<GlobalContext.Provider value={{localUser,message,room,setRoom, showModal, setShowModal,setMessage, setLocalUser, remoteUser,onlyRunOnce,setRemoteUser, socket, setSocket,openVidCallSelectionModal, setOpenVidCallSelectionModal, refreshList, setRefreshList,ICEServerConfig,incomingCallModal, setIncomingCallModal,showCallEndedText, setShowCallEndedText}} >
 
         {children}
 

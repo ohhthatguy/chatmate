@@ -8,7 +8,7 @@ import VideocamIcon from '@mui/icons-material/Videocam';
 
 const VideoCallSelectionPopup = () => {
 
-    const { openVidCallSelectionModal, setOpenVidCallSelectionModal, socket, setRefreshList} = useContext(GlobalContext)
+    const { openVidCallSelectionModal, setOpenVidCallSelectionModal, socket,localUser, setRefreshList,setShowCallEndedText} = useContext(GlobalContext)
     const [peopleICanCall, setPeopleICanCall] = useState([])
 
     useEffect(()=>{
@@ -39,7 +39,11 @@ const VideoCallSelectionPopup = () => {
 
     const handleVideoCall = (e)=>{
         console.log(e) //gives id and name of the user we have clicked to call
-        window.open('/videocall', '_blank')
+        console.log(localUser)
+        socket.emit('show-incoming-call-modal-from-this-user', localUser,e)
+        setShowCallEndedText('')
+
+        window.open('/callUser', '_blank')
 
 
 

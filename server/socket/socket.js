@@ -149,9 +149,11 @@ const socket = ()=>{
             // socket.to(roomIdServerVar).emit('take-people-in-room-excpet-me', clients,userInPrivateRoom)
             // io.to(roomIdServerVar).emit('take-people-in-room-excpet-me', clients,userInPrivateRoom)
 
-
         })
 
+        socket.on('show-incoming-call-modal-from-this-user', (caller, reciever)=>{
+            socket.to(reciever.id).emit('show-incoming-call-modal-from-this-user-to-reciever', caller)
+        })
 
 
 

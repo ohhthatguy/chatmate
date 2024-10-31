@@ -4,6 +4,7 @@ import { GlobalContext } from '../../context/context';
 import { Box, Typography,Button,TextareaAutosize } from '@mui/material';
 import VideoChatIcon from '@mui/icons-material/VideoChat';
 import VideoCallSelectionPopup from './Private/VideoCallSelectionPopup';
+import CallAtRecieverEnd from './VideoCall/CallAtRecieverEnd';
 
 import SendIcon from '@mui/icons-material/Send';
 
@@ -11,9 +12,10 @@ import SendIcon from '@mui/icons-material/Send';
 
 const Room = () => {
 
-    const { localUser, message, setMessage,socket,showModal,room, setRoom,openVidCallSelectionModal, setOpenVidCallSelectionModal,refreshList} = useContext(GlobalContext)
+    const { localUser, message, setMessage,socket,showModal,room, setRoom,openVidCallSelectionModal, setOpenVidCallSelectionModal,refreshList,incomingCallModal,setIncomingCallModal,setShowCallEndedText} = useContext(GlobalContext)
     const [localMessage, setLocalMessage] = useState('')
     const tempRefreshFlag = useRef(false)
+    const [caller,setCaller] = useState('')
     // const location = useLocation()
     
     // console.log(location.pathname)
@@ -66,6 +68,16 @@ const Room = () => {
             setMessage(chatHistory)
 
         })
+
+        socket.on('show-incoming-call-modal-from-this-user-to-reciever', (caller)=>{
+            console.log('i am here')
+            console.log(`incoming call from ${caller.name}`)
+            setShowCallEndedText('')
+            setIncomingCallModal(true)
+
+            setCaller(caller)
+        })
+
 
        
 
@@ -169,8 +181,10 @@ const Room = () => {
 
             </Box>
 
-            {openVidCallSelectionModal && <VideoCallSelectionPopup />}
+            {openVidCallSelectionModal  && <VideoCallSelectionPopup />}
 
+    
+            {incomingCallModal  &&<CallAtRecieverEnd caller={caller} />}
 
         </Box>
 

@@ -8,7 +8,8 @@ import PublicOption from './component/options/PublicOption'
 import Room from './component/options/Room'
 import CreateRoom from './component/options/Private/CreateRoom'
 import EnterRoom from './component/options/Private/EnterRoom'
-import VideoCall from './component/options/VideoCall/VideoCall'
+import CallUser from './component/options/VideoCall/CallUser'
+import CallAtRecieverEnd from './component/options/VideoCall/CallAtRecieverEnd'
 
 
 
@@ -27,7 +28,8 @@ const App = () => {
      <Route path='/enterRoom' element={<EnterRoom />} />
      <Route path='/createRoom' element={<CreateRoom />} />
 
-     <Route path='/videocall' element={<VideoCall />} />
+     <Route path='/callUser' element={<CallUser />} />
+     <Route path='/callAtRecieverEnd' element={<CallAtRecieverEnd />} />
 
 
      
