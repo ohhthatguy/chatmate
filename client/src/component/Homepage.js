@@ -43,6 +43,14 @@ const Homepage = () => {
                     onlyRunOnce.current = false
             }
 
+            return () => {
+                if (socket) {
+                  socket.disconnect(); // Properly clean up
+                }
+            }
+
+            
+
     },[])
 
 

@@ -13,6 +13,7 @@ import SendIcon from '@mui/icons-material/Send';
 const Room = () => {
 
     const { localUser, message, setMessage,socket,showModal,room, setRoom,openVidCallSelectionModal, setOpenVidCallSelectionModal,refreshList,incomingCallModal,setIncomingCallModal,setShowCallEndedText} = useContext(GlobalContext)
+    
     const [localMessage, setLocalMessage] = useState('')
     const tempRefreshFlag = useRef(false)
     const [caller,setCaller] = useState('')
@@ -30,6 +31,7 @@ const Room = () => {
         })
 
         socket.on('recieve-msg',(message)=>{
+            console.log('im here in receve msg after sned msg')
             setMessage(prev=> ([...prev,{ message: message.message, sender: message.sender, senderId: message.senderId, roomId: message.roomId, isNotification: false}]))
             
         })
@@ -63,29 +65,40 @@ const Room = () => {
 
 
         socket.on('chat-history-to-display', (chatHistory)=>{
-            console.log('here')
-            console.log(chatHistory)
+            // console.log('here')
+            // console.log(chatHistory)
             setMessage(chatHistory)
 
         })
 
         socket.on('show-incoming-call-modal-from-this-user-to-reciever', (caller)=>{
-            console.log('i am here')
+
+            // console.log('i am here')
             console.log(`incoming call from ${caller.name}`)
+
             setShowCallEndedText('')
+            
             setIncomingCallModal(true)
 
             setCaller(caller)
         })
 
+     
 
-       
-
+      
 
 
 
           return (()=>{
-            socket.disconnect()
+            
+            socket.off('show-incoming-call-modal-from-this-user-to-reciever')
+            socket.off('chat-history-to-display')
+            socket.off('take-all-prev-msg')
+            socket.off('send-unique-roomID-for-private-room')
+            socket.off('send-notif-that-this-user-joined')
+            socket.off('recieve-msg')
+            socket.off('notif-this-is-roomCreator')
+          
           })  
 
 
@@ -132,7 +145,7 @@ const Room = () => {
 
     },[refreshList])
 
-
+console.log(incomingCallModal)
     return (<Box>
 
         <Box style={{border: '2px solid red', height: '100vh', width: '100%' ,padding: '0.5rem', filter: showModal && 'blur(5px)', position: 'realtive'}}>

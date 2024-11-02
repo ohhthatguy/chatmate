@@ -1,5 +1,4 @@
 import {createContext, useState, useRef} from 'react'
-import { io } from "socket.io-client";
 
 //creating context
 export const GlobalContext = createContext();

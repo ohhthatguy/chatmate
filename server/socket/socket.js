@@ -18,10 +18,10 @@ let roomIdServerVar;
 let localUserConsumer;
 let userInPrivateRoom = [];
 let chatHistory = [];
+let newTabFromCallerSide;
 
 const socket = ()=>{
 
-    console.log('here')
 
     io.on('connection', (socket) => {
 
@@ -129,7 +129,7 @@ const socket = ()=>{
             // console.log(message)
             chatHistory = [...message,temp]
            
-            // console.log(chatHistory)
+            // console.log('chatSendMsgRoomID: ',roomIdServerVar)
 
             socket.to(roomIdServerVar).emit('recieve-msg',temp) //since the sender itself has already had the message and only other side has to take the message then
         })
@@ -152,16 +152,45 @@ const socket = ()=>{
         })
 
         socket.on('show-incoming-call-modal-from-this-user', (caller, reciever)=>{
+            console.log('///////////////////')
+            console.log('caller:',caller.name)
+            console.log('reciever:', reciever.name, reciever.id)
+            console.log('|||||||||||||||||||||||')
+
             socket.to(reciever.id).emit('show-incoming-call-modal-from-this-user-to-reciever', caller)
+
+            
         })
+
+        socket.on('i-am-new-tab-from-caller-side', (newTabSocketId)=>{
+            newTabFromCallerSide = newTabSocketId;
+        })
+
+//call end btn is pressed in reciever side
+        socket.on('call-ended-in-reciever-side',(caller)=>{
+            // console.log('call-ended-from-recievr')
+            // console.log('caller: ', caller.id, caller.name)
+            // console.log('newTabSocket: ', newTabFromCallerSide)
+
+            socket.to(newTabFromCallerSide).emit('end-call')
+
+        })
+   
+//call end btn is pressed in caller side
+        socket.on('call-end-in-caller-side', (recieverId)=>{
+            console.log('call-ended-from-calelr')
+            console.log(recieverId)
+            socket.to(recieverId).emit('end-call')
+        })
+        
+
 
 
 
 
 
         socket.on('disconnect', () => {
-            userInPrivateRoom = []
-            chatHistory = []
+           
             console.log(`User disconnected with ID: ${socket.id}`);
 
         });
@@ -174,6 +203,8 @@ const socket = ()=>{
 
 //this server is for socket.io fucntion only that is written in socket.js file
 server.listen(3000, () => {
+    userInPrivateRoom = []
+    chatHistory = []
     console.log('socket.io server is running in 3000');
 });
 

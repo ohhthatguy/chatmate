@@ -19,13 +19,13 @@ const VideoCallSelectionPopup = () => {
 
             let temp = userInPrivateRoom.filter((e)=> clients.includes(e.id)) // returns array of object of id and name of user that is not me and is in the room
 
-            console.log(temp)
+            // console.log(temp)
             setPeopleICanCall(temp)
 
         })
 
 
-        console.log(peopleICanCall)
+        // console.log(peopleICanCall)
         return (()=>{
             // socket.disconnect()
             socket.off('take-people-in-room-excpet-me');
@@ -38,12 +38,12 @@ const VideoCallSelectionPopup = () => {
     }
 
     const handleVideoCall = (e)=>{
-        console.log(e) //gives id and name of the user we have clicked to call
-        console.log(localUser)
+        // console.log(e) //gives id and name of the user we have clicked to call
+        // console.log(localUser)
         socket.emit('show-incoming-call-modal-from-this-user', localUser,e)
-        setShowCallEndedText('')
 
-        window.open('/callUser', '_blank')
+        window.open(`/callUser?id=${e.id}`, '_blank')
+     
 
 
 

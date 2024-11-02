@@ -40,7 +40,8 @@ const CreateRoom = () => {
 
       // console.log(message)
       return (()=>{
-        socket.disconnect()
+        // socket.disconnect()
+        socket.off()
       })
 
   },[])

@@ -46,7 +46,12 @@ const EnterRoom = () => {
         
 
         return(()=>{
-            socket.disconnect()
+            // socket.disconnect()
+            socket.off('roomId-is-right')
+            socket.off('roomId-is-wrong')
+            socket.off('save-room-creator-detail')
+
+
         })
 
     },[])

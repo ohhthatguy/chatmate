@@ -8,9 +8,26 @@ import CallEndIcon from '@mui/icons-material/CallEnd';
 const CallAtRecieverEnd = ({caller}) => {
 
 
-  const {incomingCallModal, setIncomingCallModal,showCallEndedText, setShowCallEndedText} = useContext(GlobalContext)
+  const {incomingCallModal, setIncomingCallModal,showCallEndedText, setShowCallEndedText,socket} = useContext(GlobalContext)
+
+  useEffect(()=>{
+
+        socket.on('end-call',()=>{
+          // setIncomingCallModal(false)
+          console.log('here at end-call of callAtRecieverEnd')
+          setShowCallEndedText('call ended!')
+      })
+
+
+      return(()=>{
+        socket.off('end-call')
+      })
+
+  },[])
+
 
   const showCallEndingText = ()=>{
+    socket.emit('call-ended-in-reciever-side',caller)
     setShowCallEndedText('Call Ended!')
 
   }

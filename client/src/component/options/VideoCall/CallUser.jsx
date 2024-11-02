@@ -4,11 +4,37 @@ import VideocamIcon from '@mui/icons-material/Videocam';
 import MicIcon from '@mui/icons-material/Mic';
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import { GlobalContext } from '../../../context/context';
+import { io } from "socket.io-client";
+
 
 const CallUser = () => {
     const {ICEServerConfig,showCallEndedText, setShowCallEndedText} = useContext(GlobalContext)
     const [localStream, setLocalStream] = useState('')
     const [peerConnection, setPeerConnection] = useState('')
+    let newTabSocket
+
+    useEffect(()=>{
+        //new socket instance is needed for the component in a new Tab
+         newTabSocket = io.connect("http://localhost:3000") //backend is running in 3001
+
+         newTabSocket.on("connect", () => {
+            console.log('new Tab Socket connected with ID:', newTabSocket.id);
+            newTabSocket.emit('i-am-new-tab-from-caller-side', newTabSocket.id)
+            
+        });  
+
+        newTabSocket.on('end-call',()=>{
+            // setIncomingCallModal(false)
+            setShowCallEndedText('call ended!')
+        })
+
+        return(()=>{
+            // newTabSocket.disconnect()
+            newTabSocket.off("connect")
+            newTabSocket.off('end-call')
+        })
+
+    },[])
 
     useEffect(()=>{
         
@@ -59,7 +85,7 @@ const CallUser = () => {
         // }
         // createPeerConAndAddMediaTrack()
 
-    },[localStream])
+    },[]) //localstream as dependecy was here
 
     if(localStream){
         document.getElementById('large-video').srcObject = localStream
@@ -76,6 +102,16 @@ const CallUser = () => {
     }
 
     const settEndText=()=>{
+
+
+        const params = new URLSearchParams(window.location.search);
+
+        const recieverId = params.get('id');
+        console.log(recieverId)
+
+        newTabSocket.emit('call-end-in-caller-side', recieverId)
+
+
         setShowCallEndedText('call Ended!')
     }
 
