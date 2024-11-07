@@ -37,6 +37,11 @@ const CallAtRecieverEnd = ({caller}) => {
     // setShowCallEndedText('')
   }
 
+  const receiveCall = ()=>{
+    window.open(`/recieveCall?id=${caller.id}`, '_blank') //id of theuser which called 
+    console.log(caller)
+    setIncomingCallModal(false)
+  }
 
 
   return (
@@ -66,7 +71,7 @@ const CallAtRecieverEnd = ({caller}) => {
             showCallEndedText.length == 0 ?
             <DialogActions style={{display: 'flex', justifyContent: 'space-around', border: '1px solid red'}}>
               
-                  <CallIcon />
+                  <CallIcon onClick={receiveCall} />
 
                   <CallEndIcon onClick={showCallEndingText}/>
 

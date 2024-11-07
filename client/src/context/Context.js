@@ -51,10 +51,13 @@ export const GlobalProvider = ({children}) =>{
         ]
     }
 
+    const [localStream, setLocalStream] = useState('')
+    const [remoteStream, setRemoteStream] = useState('')
 
 
 
-    return (<GlobalContext.Provider value={{localUser,message,room,setRoom, showModal, setShowModal,setMessage, setLocalUser, remoteUser,onlyRunOnce,setRemoteUser, socket, setSocket,openVidCallSelectionModal, setOpenVidCallSelectionModal, refreshList, setRefreshList,ICEServerConfig,incomingCallModal, setIncomingCallModal,showCallEndedText, setShowCallEndedText}} >
+
+    return (<GlobalContext.Provider value={{localUser,message,room,setRoom, showModal, setShowModal,setMessage, setLocalUser, remoteUser,onlyRunOnce,setRemoteUser, socket, setSocket,openVidCallSelectionModal, setOpenVidCallSelectionModal, refreshList, setRefreshList,ICEServerConfig,incomingCallModal, setIncomingCallModal,showCallEndedText, setShowCallEndedText,localStream, setLocalStream,remoteStream, setRemoteStream}} >
 
         {children}
 

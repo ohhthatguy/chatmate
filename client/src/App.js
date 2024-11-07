@@ -10,6 +10,7 @@ import CreateRoom from './component/options/Private/CreateRoom'
 import EnterRoom from './component/options/Private/EnterRoom'
 import CallUser from './component/options/VideoCall/CallUser'
 import CallAtRecieverEnd from './component/options/VideoCall/CallAtRecieverEnd'
+import RecieveCall from './component/options/VideoCall/RecieveCall'
 
 
 
@@ -30,7 +31,10 @@ const App = () => {
 
      <Route path='/callUser' element={<CallUser />} />
      <Route path='/callAtRecieverEnd' element={<CallAtRecieverEnd />} />
+     <Route path='/recieveCall' element={<RecieveCall />} />
 
+
+  
 
      
 

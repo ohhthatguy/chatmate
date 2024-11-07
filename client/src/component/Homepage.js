@@ -30,7 +30,7 @@ const Homepage = () => {
 
             if(onlyRunOnce.current){
 
-                let newSocket = io.connect("http://localhost:3000") //backend is running in 3001
+                let newSocket = io.connect("http://192.168.1.95:3000") //backend is running in 3001
                 setSocket(newSocket)
 
                 // Log when the socket successfully connects
@@ -63,7 +63,7 @@ const Homepage = () => {
 
            <Box style={{textAlign: 'center', padding: '1rem'}}> 
 
-              <Typography variant='h5'>  Welcome to ChatMate </Typography>
+              <Typography variant='h5'>  Welcome to ChatMate! </Typography>
             
              </Box>
 
