@@ -82,7 +82,7 @@ const CallUser = () => {
             console.log('heere1')
 
             // newTabSocket = io.connect("http://localhost:3000") //backend is running in 3000
-            newTabSocket = io.connect("http://192.168.1.95:3000")
+            newTabSocket = io.connect("https://192.168.1.95:3000")
 
             newTabSocket.on("connect", () => {
                 console.log('new Tab Socket connected with ID:', newTabSocket.id);
@@ -186,6 +186,7 @@ const CallUser = () => {
                     peerConnVar = await new RTCPeerConnection(ICEServerConfig)
 
                      localStreamVar = await navigator.mediaDevices.getUserMedia({video: true, audio: false})
+
                     if(localStreamVar){
                         // setLocalStream(localStreamVar)
                         largeVideoEle.srcObject = localStreamVar
@@ -200,7 +201,7 @@ const CallUser = () => {
                         console.log('track added into local stream in caller: ')
                         console.log(track)
                     });
-        
+
                     peerConnVar.addEventListener('track',e=>{
                         console.log("Got a track from the other peer!! How excting")
                         console.log(e)
@@ -208,7 +209,38 @@ const CallUser = () => {
                             remoteStreamVar.addTrack(track,remoteStreamVar);
                             console.log("Here's an exciting moment... fingers cross")
                         })
+    
+                        // largeVideoEle.srcObject = localStreamVar
+                        // smallVideoEle.srcObject = remoteStreamVar
                     })
+        
+                    // peerConnVar.addEventListener('track',e=>{
+                    //     console.log("Got a track from the other peer!! How excting")
+                    //     console.log(e)
+
+                    //     //empty the large video element
+                    //     largeVideoEle.srcObject.getTracks().forEach((ele)=> ele.stop())
+                    //     smallVideoEle.srcObject.getTracks().forEach((ele)=> ele.stop())
+
+                    //     // largeVideoEle.stop()
+                    //     largeVideoEle.srcObject = null
+                    //     smallVideoEle.srcObject = null
+
+                    //     //send the local user feed to the small video element
+                    //     smallVideoEle.srcObject = localStreamVar
+
+                    //     //get the remote stream
+                    //     e.streams[0].getTracks().forEach(track=>{
+                    //         remoteStreamVar.addTrack(track,remoteStreamVar);
+                    //         console.log("Here's an exciting moment... fingers cross")
+                    //     })
+
+                    //     //put it in largevdeo element
+                    //     largeVideoEle.srcObject = remoteStreamVar
+                    //     largeVideoEle.play()
+                    //     smallVideoEle.play()
+                        
+                    // })
                   
 
 

@@ -1,17 +1,25 @@
 const express = require('express')
 // const cors = require('cors')
-const http = require('http')
-const {Server} = require('socket.io')
+const fs = require('fs')
+const https = require('https')
+// const {Server} = require('socket.io')
+const socketio = require('socket.io');
 const app = express()
 
 
-const server = http.createServer(app) //create a http server from express that handles the socket.io requests
+const key = fs.readFileSync('192.168.1.95-key.pem')
+const cert = fs.readFileSync('192.168.1.95.pem')
+
+
+
+const server = https.createServer({key,cert},app) //create a http server from express that handles the socket.io requests
 //attach the socket.io to server with cors
-const io = new Server(server,{cors: {
+
+//new Server = socketio
+const io = socketio(server,{cors: {
 //   origin: 'http://localhost:3001',      //react frontend is runing in 3001,
-  origin: '*',
-  methods: ["GET", "POST", "UPDATE", "DELETE"],
-  credentials: true
+  origin: ['https://192.168.1.95:3001','*'],
+  methods: ["GET", "POST", "UPDATE", "DELETE"]
 
 }}) 
 
