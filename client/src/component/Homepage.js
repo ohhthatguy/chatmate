@@ -30,7 +30,7 @@ const Homepage = () => {
 
             if(onlyRunOnce.current){
 
-                let newSocket = io.connect("https://192.168.1.95:3000") //backend is running in 3000
+                let newSocket = io.connect("https://192.168.18.76:3000") //backend is running in 3000
                 setSocket(newSocket)
 
                 // Log when the socket successfully connects

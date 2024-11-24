@@ -19,67 +19,83 @@ const RecieveCall = () => {
     let newTabRecieveCallVarClientSide;
     let callerOfferInRecieverSide;
     let iceInfoRecieverSide=[];
-    let temp;
+    
     let   peerConnVar;
     const oneTimeOnly = useRef(true)
+    // const [mute, setMute] = useState(false);
+    // const [hideVideo, setHideVideo] = useState(false)
+    // const [audioTracks, setAudioTracks] = useState('')
+    let audioTracks;
+    let videoTracks;
+    let mute = false;
+    let hideVideo = false;
     let iceGathered = false;
     let  localStreamVar;
     let remoteStreamVar = new MediaStream()
+    let largeVideoEle;
+    let smallVideoEle;
 
+if(oneTimeOnly.current){
+        //no localstream means we have to get user media 
+        // fetchUserMedia(setLocalStream, largeVideoEle, smallVideoEle)
+    console.log('heere1')
+    newTabSocket = io.connect("https://192.168.18.76:3000")
+
+    newTabSocket.on("connect", () => {
+        console.log('new Tab Socket of reciever side is connected with ID:', newTabSocket.id);
+        newTabRecieveCallVarClientSide = newTabSocket.id
+        newTabSocket.emit('i-am-new-tab-from-reciever-side', newTabSocket.id)
+        
+    }); 
+
+    console.log(newTabSocket)
+    oneTimeOnly.current=false;
+
+    }
 
 
     useEffect(()=>{
 
+         largeVideoEle = document.querySelector('#large-video');
+         smallVideoEle =  document.querySelector('#small-video');
 
-
-        const largeVideoEle = document.querySelector('#large-video');
-        const smallVideoEle =  document.querySelector('#small-video');
+        
 
         const findIceCandiAndSendToCallerFromReciever = async()=>{
 
             try{
 
-                //  peerConnVar = await new RTCPeerConnection(ICEServerConfig)
-
-                 //add tracks in peerconnection
-                // console.log('adding track in peerconnection in reciever side')
-
-                // localStream.getTracks().forEach(track => {
-                //     peerConnVar.addTrack(track, localStream)
-                // });
-
-           
-
-
-
-                // peerConnVar.addEventListener('icecandidate',(e)=>{
-        
-                //     console.log('iceCandi found in reciever side')
-        
-                //     if(e.candidate){
-                //         // console.log(callerID)
-                //         iceInfoRecieverSide = [...iceInfoRecieverSide,{
-
-                //                 iceCandidate: e.candidate,
-                //                 localUserId: newTabRecieveCallVarClientSide
-                //             }
-                //         ]
-        
-                //         // newTabSocket.emit('sendIceCandidateToSignalingServer',IceInfo) 
-                      
-                //     }
-
-                // })
-
-               
-                   
-                    // console.log(iceInfoRecieverSide)
+                    console.log('26. about to check if ice candi of reciever can be sent to caller...')                
 
                     if (iceGathered) {
-                        console.log('24. ice candi collection recievr side complete')
+                        console.log('27. ice candi at recievr are complete AND SENT!!!')
                         newTabSocket.emit('iceCandiAddingComplete-in-reciever-side', iceInfoRecieverSide)
                     }else{
-                        console.log('24. ice candi collection recievr side NOT complete')
+                        console.log('27. ice candi st recievr are NOT complete. NOT SENT!')
+
+                        // it was seen that reciver side was not sending its ice candi,
+                        //this promise awaits until icegathered = true i.e. icegatheringState == complete
+                        //if it is, its resolved and the line next that is this same func is called again this time with
+                        //ice candi ready to be served to caller
+
+                        const iceGatheringPromise = new Promise((resolve)=>{
+
+                               const checkEveryFewTime = setInterval(()=>{
+
+                                    if(iceGathered){
+                                        clearInterval(checkEveryFewTime);
+                                        resolve();
+                                    }
+
+                               },100)
+
+              
+
+                        });
+            
+            
+                        await iceGatheringPromise;
+                        findIceCandiAndSendToCallerFromReciever();
                     }
                 
 
@@ -89,19 +105,70 @@ const RecieveCall = () => {
             }
         }
 
+
+
         const createAnswerAndSetRemoteDescrip = async(callerOffer)=>{
 
-            try{
+           
+                console.log('8. creating rtc peer connection reciever side')
+
                 peerConnVar = await new RTCPeerConnection(ICEServerConfig)
+                console.log(peerConnVar)
+
+                peerConnVar.addEventListener('icecandidate',(e)=>{
+        
+                    console.log('iceCandi found in reciever side')
+        
+                    if(e.candidate){
+                        // console.log(callerID)
+                        iceInfoRecieverSide = [...iceInfoRecieverSide,{
+    
+                                iceCandidate: e.candidate,
+                                localUserId: newTabRecieveCallVarClientSide
+                            }
+                        ]
+                      
+                    }
+    
+                    
+    
+                });
+
+                peerConnVar.addEventListener('icegatheringstatechange', () => {
+                    // console.log(iceInfoRecieverSide)
+    
+                    if (peerConnVar.iceGatheringState === 'complete') {
+                        console.log('ice info gathering in recievr side complete')
+                    
+                        iceGathered = true;
+                       
+
+                    }else{
+                    console.log('ice info gathering in recievr side is not complete')
+    
+                    }
+                });
+
+           
+            
+            // setRemoteAndLocalDescription(callerOffer)
 
 
-                 localStreamVar = await navigator.mediaDevices.getUserMedia({video: true, audio: false})
+            //added
+
+            //commenteed rnn
+            console.log('9. get reciever user media')
+
+                localStreamVar = await navigator.mediaDevices.getUserMedia({video: true, audio: true})
+                audioTracks = localStreamVar.getAudioTracks();
+                videoTracks = localStreamVar.getVideoTracks()[0];
 
                 if(localStreamVar){
                     // setLocalStream(localStreamVar)
                     largeVideoEle.srcObject = localStreamVar
-                    smallVideoEle.srcObject = remoteStreamVar
                     largeVideoEle.play()
+
+                    smallVideoEle.srcObject = remoteStreamVar
                     smallVideoEle.play()
                    
                 }
@@ -111,7 +178,7 @@ const RecieveCall = () => {
                     console.log('track added into local stream recieervre: ')
                     console.log(track)
                 });
-    
+
                 peerConnVar.addEventListener('track',e=>{
                     console.log("Got a track from the other peer!! How excting")
                     console.log(e)
@@ -120,201 +187,91 @@ const RecieveCall = () => {
                         console.log("Here's an exciting moment... fingers cross")
                     })
 
-                    // largeVideoEle.srcObject = lo
-                    // smallVideoEle.srcObject = remoteStream
-                })
+                    console.log(remoteStreamVar)
 
-                // peerConnVar.addEventListener('track',e=>{
-                //     console.log("Got a track from the other peer!! How excting")
-                //     console.log(e)
+                    // if(remoteStreamVar.active){
+                    //     //place 
+                    //     const tempStream = largeVideoEle.srcObject;
 
-                //     //empty the large video element
-                //     largeVideoEle.srcObject.getTracks().forEach((ele)=> ele.stop())
-                //     smallVideoEle.srcObject.getTracks().forEach((ele)=> ele.stop())
+                    //     largeVideoEle.srcObject = smallVideoEle.srcObject; 
+                    //     largeVideoEle.onloadedmetadata = () => {
+                    //         largeVideoEle.play().catch((err) => console.error('Error playing large video:', err));
+                    //     };
 
-                //     // largeVideoEle.stop()
-                //     // largeVideoEle.srcObject = null
-                //     // smallVideoEle.srcObject = null
-
-                //     //send the local user feed to the small video element
-                //     smallVideoEle.srcObject = localStreamVar
-
-                //     //get the remote stream
-                //     e.streams[0].getTracks().forEach(track=>{
-                //         remoteStreamVar.addTrack(track,remoteStreamVar);
-                //         console.log("Here's an exciting moment... fingers cross")
-                //     })
-
-                //     //put it in largevdeo element
-                //     largeVideoEle.srcObject = remoteStreamVar
-                //     largeVideoEle.play()
-                //     smallVideoEle.play()
-                    
-                // })
+                    //     smallVideoEle.srcObject = tempStream;
+                    //     smallVideoEle.onloadedmetadata = () => {
+                    //         smallVideoEle.play().catch((err) => console.error('Error playing small video:', err));
+                    //     };
 
 
+                    // }
+    
+                });
 
              await peerConnVar.setRemoteDescription(callerOffer.localOffer);
 
-             console.log('6. remoteDEscrip is set in reciever side so ice candi from caller can be set now')
-             newTabSocket.emit('give-me-ice-candi-from-caller')////
+             console.log('10. remoteDEscrip is set in reciever side.')
+            //  newTabSocket.emit('give-me-ice-candi-from-caller')
 
              const answer = await peerConnVar.createAnswer();
              await peerConnVar.setLocalDescription(answer);
-             
+
+             console.log('11. local description is set as answer in reciever')
+             console.log('12. both local and remote are set in reciever side')
+
+            //  newTabSocket.emit('take-answer-and-set-remote-to-caller', answer)
+
+           
+
              console.log(callerOffer)
-             console.log('15. caller offer is set as remote and answer as local')
-             console.log('16. answer is sent to server socket')
+   
+             console.log('13. answer from reciever is sent to server socket')
 
              newTabSocket.emit('take-answer-and-set-remote-to-caller', answer)
 
-          
-          
+             if(remoteStreamVar.active){
+                //place 
+                const tempStream = largeVideoEle.srcObject;
 
-             
-             peerConnVar.addEventListener('icecandidate',(e)=>{
-        
-                console.log('iceCandi found in reciever side')
-    
-                if(e.candidate){
-                    // console.log(callerID)
-                    iceInfoRecieverSide = [...iceInfoRecieverSide,{
+                largeVideoEle.srcObject = smallVideoEle.srcObject; 
+                largeVideoEle.onloadedmetadata = () => {
+                    largeVideoEle.play().catch((err) => console.error('Error playing large video:', err));
+                };
 
-                            iceCandidate: e.candidate,
-                            localUserId: newTabRecieveCallVarClientSide
-                        }
-                    ]
-    
-                    // newTabSocket.emit('sendIceCandidateToSignalingServer',IceInfo) 
-                  
-                }
+                smallVideoEle.srcObject = tempStream;
+                smallVideoEle.onloadedmetadata = () => {
+                    smallVideoEle.play().catch((err) => console.error('Error playing small video:', err));
+                };
 
-                
 
-            })
-
-            peerConnVar.addEventListener('icegatheringstatechange', () => {
-                // console.log(iceInfoRecieverSide)
-
-                if (peerConnVar.iceGatheringState === 'complete') {
-                    console.log('ice info recievr side complete')
-
-                    iceGathered = true;
-                }else{
-                console.log('ice info recievr side is not complete')
-
-                }
-            })
-
-            }catch(err){
-                console.log(err)
             }
+
+            //  newTabSocket.emit('give-me-ice-candi-from-caller') comented rn
 
 
         }
 
         const saveIceCandiOfCaller = async(callerOffer)=>{
             
-            // const candidate = new RTCIceCandidate(callerOffer.localIceCandidate)
+            
             callerOffer.localIceCandidate.map((e)=>{
                  peerConnVar.addIceCandidate(e)
 
             })
 
-            console.log('14. caller Ice Candi Are Added TO Reciever')
+            console.log('24. caller Ice Candi Are Added TO Reciever')
+            console.log('25. turn for reciever side to send its ice candi to caller.')
 
-            // localStreamVar.getTracks().forEach(track => {
-            //     peerConnVar.addTrack(track, localStreamVar)
-            // });
 
-            // peerConnVar.addEventListener('track',e=>{
-            //     console.log("Got a track from the other peer!! How excting")
-            //     console.log(e)
-            //     // e.streams[0].getTracks().forEach(track=>{
-            //     //     remoteStream.addTrack(track,remoteStream);
-            //     //     console.log("Here's an exciting moment... fingers cross")
-            //     // })
-            // })
+           
 
-        
-
-            // console.log('find and send ice candi of recievr side ot caller side')
-
-            // await findIceCandiAndSendToCallerFromReciever()
+            await findIceCandiAndSendToCallerFromReciever()
         }
-
-        
-
-
-            // if(!newTabSocket){
-            //     // newTabSocket = io.connect("http://localhost:3000") //backend is running in 3000
-               
-               
-
-            // }
-
-            if(oneTimeOnly.current){
-                //no localstream means we have to get user media 
-                // fetchUserMedia(setLocalStream, largeVideoEle, smallVideoEle)
-            console.log('heere1')
-            newTabSocket = io.connect("https://192.168.1.95:3000")
-
-            newTabSocket.on("connect", () => {
-                console.log('new Tab Socket of reciever side is connected with ID:', newTabSocket.id);
-                newTabRecieveCallVarClientSide = newTabSocket.id
-                newTabSocket.emit('i-am-new-tab-from-reciever-side', newTabSocket.id)
-                
-            }); 
-
-            //
-            oneTimeOnly.current = false
-
-
-            }
-          
-            if(localStream){
-                //if there is localstream then place it in the peer connection
-                // console.log(newTabSocket)
-                // console.log(callerID.current)
-                // createPeerConAndAddMediaTrack(ICEServerConfig, localStream,smallVideoEle, setRemoteStream,setPeerConnection, newTabSocket,callerID)
-                // createPeerConAndAddMediaTrackInRecieverSide()
-                //call functi heer
-            
-
-            }
-
-            newTabSocket.on('recieverIsOnlineSendOffer', (callerOffer)=>{
-                console.log('5.offer from caler reached reaciever')
-                createAnswerAndSetRemoteDescrip(callerOffer)
-
-            })
-
-            newTabSocket.on('save-ice-candi-of-caller', (callerOffer)=>{
-                console.log('13. ice candi of caller raeched reciever')
-                saveIceCandiOfCaller(callerOffer)
-                console.log(callerOffer)
-            })
-
-
-
-
-         
-     
 
             newTabSocket.on('end-call',()=>{
                 // setIncomingCallModal(false)
                 setShowCallEndedText('call ended!')
             })
-
-
-
-            // newTabSocket.on('this-is-sender-id', (localUserConsumer)=>{
-            //     console.log('asdasdjasdoiajdsiojrgeiojweriof')
-            //     console.log(localUserConsumer)
-            //     if(localUserConsumer){
-            //         callerID.current = localUserConsumer
-            //     }
-            // })
 
             newTabSocket.on('console-log-offer', (callerOffer)=>{
                 callerOfferInRecieverSide = {... callerOffer}
@@ -322,24 +279,24 @@ const RecieveCall = () => {
                 console.log( callerOfferInRecieverSide)
             })
 
-            // newTabSocket.on('place-this-in-remote-descrip',(callerOffer)=>{
-            //     if(!temp){
-            //         temp = callerOffer
-            //         createAnswerAndSetRemoteDescrip(callerOffer)
-
-            //     }
-            // })
+            //here
+            newTabSocket.on('save-ice-candi-of-caller', (callerOffer)=>{
+                console.log('23. ice candi of caller reached reciever')
+                console.log(callerOffer)
+                saveIceCandiOfCaller(callerOffer)
+            })
+           
             newTabSocket.on('provide-ice-candi-to-caller',async()=>{
-
                 console.log('23. ice candi is extracting from reciver')
                 await findIceCandiAndSendToCallerFromReciever()
 
             })
 
+            newTabSocket.on('recieverIsOnlineSendOffer', (callerOffer)=>{
+                console.log('7.offer from caler reached reaciever')
+                createAnswerAndSetRemoteDescrip(callerOffer)
+            })
 
-
-
-        
             return(()=>{
                 // newTabSocket.disconnect()
                 newTabSocket.off("connect")
@@ -357,10 +314,7 @@ const RecieveCall = () => {
 
             })
         
-
     },[])
-
-
 
     const closeThisAndReturnToRoom=()=>{
         window.close()
@@ -368,7 +322,7 @@ const RecieveCall = () => {
 
     const settEndText=()=>{
 
-
+console.log(newTabSocket)
         const params = new URLSearchParams(window.location.search);
 
         const callerID = params.get('id');
@@ -379,6 +333,34 @@ const RecieveCall = () => {
 
         setShowCallEndedText('call Ended!')
     }
+
+     const handleHideVideo = ()=>{
+        console.log('hideVideo: ', hideVideo)
+        if(!hideVideo){
+            videoTracks.enabled = false; // Disable the video track (hide the video)
+            hideVideo = true;
+
+        }else{
+
+            videoTracks.enabled = true; // Disable the video track (hide the video)
+            hideVideo = false;
+        }
+    }
+
+    const handleMuteVideo = ()=>{
+        console.log('muteAudio: ', mute);
+        console.log(audioTracks)
+        if(!mute){
+            // localStreamVar.getAudioTracks().forEach(track => track.stop());
+            audioTracks[0].enabled = false;
+            mute = true;
+        } else{
+            audioTracks[0].enabled = true;
+            mute = false;
+        } 
+    }
+
+    console.log(newTabSocket)
 
   return (
     <>
@@ -408,9 +390,9 @@ const RecieveCall = () => {
             </Box>
             
             <Box style={{display: 'flex', justifyContent: 'space-evenly',height: '10%',border: '1px solid yellow',alignItems: 'center'}}>
-                <VideocamIcon />
+                <VideocamIcon onClick={handleHideVideo}/>
                 <CallEndIcon onClick={settEndText} />
-                <MicIcon />
+                <MicIcon onClick={handleMuteVideo}/>
             </Box>
         
     

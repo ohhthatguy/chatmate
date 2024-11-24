@@ -21,82 +21,149 @@ const CallUser = () => {
     // const [callerID, setCallerID] = useState('')
     // const callerID = useRef(null)
     const oneTimeOnly = useRef(true)
- 
-    const [offerFromOther, setOfferFromOther] = useState('')
-
+   
     //new socket instance is needed for the component in a new Tab
+    let mute = false;
+    let hideVideo = false;
     let newTabSocket
     let  peerConnVar;
     let REMOTESTREAM;
     let iceGathered = false;
     let localStreamVar;
     let remoteStreamVar = new MediaStream();
-    // useEffect(()=>{
-
-
-       
-
-    //      newTabSocket = io.connect("http://localhost:3000") //backend is running in 3001
-
-    //      newTabSocket.on("connect", () => {
-    //         console.log('new Tab Socket connected with ID:', newTabSocket.id);
-    //         newTabSocket.emit('i-am-new-tab-from-caller-side', newTabSocket.id)
-            
-    //     });  
-
-    //     newTabSocket.on('end-call',()=>{
-    //         // setIncomingCallModal(false)
-    //         setShowCallEndedText('call ended!')
-    //     })
-
-    //     //fetch media
-        
-
-
-
-
-
-
-
-    //     return(()=>{
-    //         // newTabSocket.disconnect()
-    //         newTabSocket.off("connect")
-    //         newTabSocket.off('end-call')
-    //     })
-
-    // },[])
-
-
-    //for video call script
+let audioTracks;
+let videoTracks;
+    let largeVideoEle;
+    let smallVideoEle;
    
     
+    if(oneTimeOnly.current){
+
+        console.log('heere1')
+
+       
+         newTabSocket = io.connect("https://192.168.18.76:3000");
+        console.log(newTabSocket)
+
+        newTabSocket.on("connect", () => {
+            console.log('new Tab Socket connected with ID:', newTabSocket.id);
+            newTabCallerVarClientSide = newTabSocket.id
+
+            newTabSocket.emit('i-am-new-tab-from-caller-side', newTabSocket.id)
+
+            
+        });
+
+
+        oneTimeOnly.current = false
+    }
         
 
     useEffect(()=>{
 
-        const largeVideoEle = document.querySelector('#large-video');
-        const smallVideoEle =  document.querySelector('#small-video');
+         largeVideoEle = document.querySelector('#large-video');
+         smallVideoEle =  document.querySelector('#small-video');
 
 
-        if(oneTimeOnly.current){
-            console.log('heere1')
+        const createOfferAndSendToReciever = async()=>{
+          
+                // try{
+                    console.log('1. creating rtc peer connection caller side')
 
-            // newTabSocket = io.connect("http://localhost:3000") //backend is running in 3000
-            newTabSocket = io.connect("https://192.168.1.95:3000")
+                    peerConnVar = await new RTCPeerConnection(ICEServerConfig)
+                    console.log(peerConnVar)
 
-            newTabSocket.on("connect", () => {
-                console.log('new Tab Socket connected with ID:', newTabSocket.id);
-                newTabCallerVarClientSide = newTabSocket.id
+
+                peerConnVar.addEventListener('icecandidate',(e)=>{
+        
+                    console.log('iceCandi found')
+                    if(e.candidate){
+                         iceInfoCallerSide = [...iceInfoCallerSide,{
+                            iceCandidate: e.candidate,
+                            localUserId: newTabCallerVarClientSide
+                        }
+                        ]
+                        
+                    }
+                })
+
+                    
+                peerConnVar.addEventListener('icegatheringstatechange', () => {
+
+                    if (peerConnVar.iceGatheringState === 'complete') {
+                        console.log('all ice candi are gathered completely')
+                        // newTabSocket.emit('iceCandiAddingComplete-in-caller-side', iceInfoCallerSide)
+
+                        iceGathered = true
+                    }else{
+                        console.log('ice candi are not gathered fully')
+                    }
+                })
+
+                console.log('2. getting caller media')
+                localStreamVar = await navigator.mediaDevices.getUserMedia({video: true, audio: true})
+
+                 audioTracks = localStreamVar.getAudioTracks();
+                 videoTracks = localStreamVar.getVideoTracks()[0];
+
+                console.log(localStreamVar)
+                    if(localStreamVar){
+                        largeVideoEle.srcObject = localStreamVar
+                        largeVideoEle.play()
+
+                        smallVideoEle.srcObject = remoteStreamVar
+                        smallVideoEle.play()
+                       
+                    }
+
+                    localStreamVar.getTracks().forEach(track => {
+                        peerConnVar.addTrack(track, localStreamVar)
+                        console.log('track added into local stream in caller: ')
+                        console.log(track)
+                    });
+
+                    peerConnVar.addEventListener('track',e=>{
+                        console.log("Got a track from the other peer ")
+                        console.log(e.streams)
+                        e.streams[0].getTracks().forEach(track=>{
+                            remoteStreamVar.addTrack(track,remoteStreamVar);
+                            console.log("Here's an exciting moment... fingers cross")
+                        })
+                       
+                        console.log(remoteStreamVar)
+                        // if(remoteStreamVar.active){
+                        //     //place 
+                        //     const tempStream = largeVideoEle.srcObject; 
+                        //     largeVideoEle.srcObject = smallVideoEle.srcObject; 
+
+                        //     largeVideoEle.onloadedmetadata = () => {
+                        //         console.log('here')
+                        //         largeVideoEle.play().catch((err) => console.error('Error playing large video:', err));
+                        //     };
+
+                        //     smallVideoEle.srcObject = tempStream;
+                        //     smallVideoEle.onloadedmetadata = () => {
+                        //         console.log('here')
+
+                        //         smallVideoEle.play().catch((err) => console.error('Error playing small video:', err));
+                        //     };
+
+
+                        // }
     
-                newTabSocket.emit('i-am-new-tab-from-caller-side', newTabSocket.id)
-    
-                
-            });
+                    });
 
-            oneTimeOnly.current = false
-      
+                    
+                    const offer = await peerConnVar.createOffer();
+                    await peerConnVar.setLocalDescription(offer);
+                    console.log('3. Offer set as local description in caller side');
+                    
+                    console.log('4. sending this offer to reciever');
 
+                    newTabSocket.emit('save-offer-from-caller-side', offer)
+           
         }
+       
 
         const saveIceCandiOfreciever = async(recieverOffer)=>{
             
@@ -104,13 +171,31 @@ const CallUser = () => {
              peerConnVar.addIceCandidate(e)
                 
             })
-            // const candidate = new RTCIceCandidate(recieverOffer.localIceCandidate)
 
-            console.log('28. reciever Ice Candi Are Added TO caller')
-            console.log('29. ice candi are succesffuly exchaneged on both side')
+            console.log('31. reciever Ice Candi Are Added TO caller')
+            console.log('32. ice candi are succesffuly exchaneged on both side')
+
+//swap media on large and small vid element after eeveyr major work is done
+            if(remoteStreamVar.active){
+                //place 
+                const tempStream = largeVideoEle.srcObject; 
+                largeVideoEle.srcObject = smallVideoEle.srcObject; 
+
+                largeVideoEle.onloadedmetadata = () => {
+                    console.log('here')
+                    largeVideoEle.play().catch((err) => console.error('Error playing large video:', err));
+                };
+
+                smallVideoEle.srcObject = tempStream;
+                smallVideoEle.onloadedmetadata = () => {
+                    console.log('here')
+
+                    smallVideoEle.play().catch((err) => console.error('Error playing small video:', err));
+                };
+
+
+            }
           
-
-        
         }
 
         const FindAndShareIceCandiFromCaller = ()=>{
@@ -118,15 +203,15 @@ const CallUser = () => {
       
 
 
-                console.log('9.taking in ice candidiates in caller-side')
+                console.log('19.About to check if ice candi can be sent from caller side...')
                 //  peerConnVar = await new RTCPeerConnection(ICEServerConfig)
 
 
                     if (iceGathered) {
-                        console.log('10.all ice candi are added completely')
+                        console.log('20.all ice candi are gathered completely AND SENT!!!!')
                         newTabSocket.emit('iceCandiAddingComplete-in-caller-side', iceInfoCallerSide)
                     }else{
-                        console.log('10.all ice candi are not added completely')
+                        console.log('20.all ice candi are not gathered completely. NOT SENT!!')
 
                     }
               
@@ -140,175 +225,19 @@ const CallUser = () => {
 
         const setRemoteDescripAndAnswer = async(answer)=>{
 
-            console.log('19. asnwer of reciever is set as remote to caller')
-            //setting recievr offer as the remotedescript
+            console.log('16. asnwer of reciever is set as remote to caller')
+           
             await peerConnVar.setRemoteDescription(answer)
 
-            console.log('20. answer of reciever is savde as remote description to caller')
+            console.log('17. local and remote are set of caller too! ')
 
-            console.log('21. since remote descrip of caller is set we can take iceCAndi from reciever and set here')
-            newTabSocket.emit('give-me-ice-candi-from-reciever')
+            console.log('18. work of ice candi start now from caller side!!')
 
-            // console.log('now we look for ice candi as setting offer and answer on both side are done')
+            await FindAndShareIceCandiFromCaller()
 
-            // await FindAndShareIceCandiFromReciverToSender()
-
-
-// //answer has been set as local description 
-//             console.log('anser is set as localdescription')
-
-//             const answer = await peerConnVar.createAnswer()
-//             await peerConnVar.setLocalDescription(answer)
-
-            // peerConnVar.addEventListener('track',e=>{
-            //     console.log("Got a track from the other peer!! How excting")
-            //     console.log(e)
-
-
-            //     // REMOTESTREAM = new MediaStream()
-            //     // remoteVideoEl.srcObject = remoteStream;
-
-            //     e.streams[0].getTracks().forEach(track=>{
-            //         REMOTESTREAM.addTrack(track,remoteStream);
-            //     })
-            //     console.log("Here's an exciting moment... fingers cross")
-
-            // })
 
 
         }
-
-        const createOfferAndSendToReciever = async()=>{
-            // return new Promise(async(resolve,reject)=>{
-
-                try{
-
-                    peerConnVar = await new RTCPeerConnection(ICEServerConfig)
-
-                     localStreamVar = await navigator.mediaDevices.getUserMedia({video: true, audio: false})
-
-                    if(localStreamVar){
-                        // setLocalStream(localStreamVar)
-                        largeVideoEle.srcObject = localStreamVar
-                        smallVideoEle.srcObject = remoteStreamVar
-                        largeVideoEle.play()
-                        smallVideoEle.play()
-                       
-                    }
-
-                    localStreamVar.getTracks().forEach(track => {
-                        peerConnVar.addTrack(track, localStreamVar)
-                        console.log('track added into local stream in caller: ')
-                        console.log(track)
-                    });
-
-                    peerConnVar.addEventListener('track',e=>{
-                        console.log("Got a track from the other peer!! How excting")
-                        console.log(e)
-                        e.streams[0].getTracks().forEach(track=>{
-                            remoteStreamVar.addTrack(track,remoteStreamVar);
-                            console.log("Here's an exciting moment... fingers cross")
-                        })
-    
-                        // largeVideoEle.srcObject = localStreamVar
-                        // smallVideoEle.srcObject = remoteStreamVar
-                    })
-        
-                    // peerConnVar.addEventListener('track',e=>{
-                    //     console.log("Got a track from the other peer!! How excting")
-                    //     console.log(e)
-
-                    //     //empty the large video element
-                    //     largeVideoEle.srcObject.getTracks().forEach((ele)=> ele.stop())
-                    //     smallVideoEle.srcObject.getTracks().forEach((ele)=> ele.stop())
-
-                    //     // largeVideoEle.stop()
-                    //     largeVideoEle.srcObject = null
-                    //     smallVideoEle.srcObject = null
-
-                    //     //send the local user feed to the small video element
-                    //     smallVideoEle.srcObject = localStreamVar
-
-                    //     //get the remote stream
-                    //     e.streams[0].getTracks().forEach(track=>{
-                    //         remoteStreamVar.addTrack(track,remoteStreamVar);
-                    //         console.log("Here's an exciting moment... fingers cross")
-                    //     })
-
-                    //     //put it in largevdeo element
-                    //     largeVideoEle.srcObject = remoteStreamVar
-                    //     largeVideoEle.play()
-                    //     smallVideoEle.play()
-                        
-                    // })
-                  
-
-
-
-                    const offer = await peerConnVar.createOffer();
-                    await peerConnVar.setLocalDescription(offer);
-                    console.log('1. Offer set as local description in caller side');
-                    
-                    console.log('2. sending this offer to reciever');
-                     newTabSocket.emit('save-offer-from-caller-side', offer)
-
-                     peerConnVar.addEventListener('icecandidate',(e)=>{
-        
-                        console.log('iceCandi found')
-            
-                        if(e.candidate){
-                            // console.log(callerID)
-                            iceInfoCallerSide = [...iceInfoCallerSide,{
-                                iceCandidate: e.candidate,
-                                localUserId: newTabCallerVarClientSide
-                            }
-                            ]
-            
-                            // newTabSocket.emit('sendIceCandidateToSignalingServer-in-caller-side',IceInfo) 
-                          
-                        }
-                    })
-
-                    
-                peerConnVar.addEventListener('icegatheringstatechange', () => {
-
-                    if (peerConnVar.iceGatheringState === 'complete') {
-                        console.log('all ice candi are added completely')
-                        // newTabSocket.emit('iceCandiAddingComplete-in-caller-side', iceInfoCallerSide)
-                        iceGathered = true
-                    }else{
-                        console.log('ice candi are not finished loading')
-                    }
-                })
-
-
-                    // resolve()
-
-                }catch(err){
-                    console.log(err)
-                    // reject()
-                }
-
-            // })
-        }
-
-        // if(oneTimeOnly.current){
-        //     // newTabSocket = io.connect("http://localhost:3000") //backend is running in 3000
-        //     newTabSocket = io.connect("http://192.168.1.95:3000")
-
-        //     newTabSocket.on("connect", () => {
-        //         console.log('new Tab Socket connected with ID:', newTabSocket.id);
-        //         newTabCallerVarClientSide = newTabSocket.id
-    
-        //         newTabSocket.emit('i-am-new-tab-from-caller-side', newTabSocket.id)
-    
-                
-        //     });
-
-        //     oneTimeOnly.current = false
-      
-
-        // }
 
         if(!localStream){
             //no localstream means we have to get user media 
@@ -329,55 +258,27 @@ const CallUser = () => {
             setShowCallEndedText('call ended!')
         })
 
-   
-
-        
-
-
-
-
-        
-        if(localStream){
-            
-            // createPeerConAndAddMediaTrackInRecieverSide()
-
-        }
-
-    
-
         newTabSocket.on('console-log-offer', (recieverOffer)=>{
             recieverOfferInCallerSide = {... recieverOffer}
             console.log(`reeciever offer in caller side: `)
             console.log(recieverOfferInCallerSide)
         })
 
-        newTabSocket.on('offer-from-recievr', (recieverOffer)=>{
-            // setOfferFromOther(recieverOffer)
-        })
-
-        newTabSocket.on('set-remote-descrip-this-answer', (answer)=>{
-            console.log('18. answer has reached the call user from server')
-            console.log(answer)
-            setRemoteDescripAndAnswer(answer)
-        })
-
         newTabSocket.on('save-ice-candi-of-reciever', (recieverOffer)=>{
-            console.log('27. ice candi of recievr has reached callerUSer Tab')
+            console.log('30. ice candi of recievr has reached callerUSer Tab')
              saveIceCandiOfreciever(recieverOffer)
         })
 
         newTabSocket.on('provide-ice-candi-to-reciever',()=>{
-            console.log('8. ice candi of caller are sent tos server')
+            console.log('8. started process of ice candi of caller sending to server')
             FindAndShareIceCandiFromCaller()
         })
 
-
-
-
-
-
-      
-
+        newTabSocket.on('set-remote-descrip-this-answer', (answer)=>{
+            console.log('15. answer has reached the call user from server')
+            console.log(answer)
+            setRemoteDescripAndAnswer(answer)
+        })
         
         return(()=>{
             // newTabSocket.disconnect()
@@ -396,21 +297,6 @@ const CallUser = () => {
 
     },[])
 
-    // console.log(peerConnection)
-
-
-    
-  
-
-    // if(localStream){
-    //     document.getElementById('large-video').srcObject = localStream
-    //     // document.getElementById('small-video').srcObject = localStream
-
-    //     document.getElementById('large-video').play()
-    //     // document.getElementById('small-video').play()
-
-
-    // }
 
     const closeThisAndReturnToRoom=()=>{
         window.close()
@@ -418,7 +304,7 @@ const CallUser = () => {
 
     const settEndText=()=>{
 
-
+console.log(newTabSocket)
         const params = new URLSearchParams(window.location.search);
 
         const recieverId = params.get('id');
@@ -430,6 +316,36 @@ const CallUser = () => {
         setShowCallEndedText('call Ended!')
     }
 
+    const handleHideVideo = ()=>{
+        console.log('hideVideo: ', hideVideo)
+        if(!hideVideo){
+            videoTracks.enabled = false; // Disable the video track (hide the video)
+            hideVideo = true;
+
+        }else{
+
+            videoTracks.enabled = true; // Disable the video track (hide the video)
+            hideVideo = false;
+        }
+    }
+
+    const handleMuteVideo = ()=>{
+        console.log('muteAudio: ', mute);
+        console.log(audioTracks)
+        
+        if(!mute){
+            // localStreamVar.getAudioTracks().forEach(track => track.stop());
+            audioTracks[0].enabled = false;
+            mute = true;
+            // setMute(true)
+        } else{
+            audioTracks[0].enabled = true;
+            mute = false;
+            // setMute(false)
+        } 
+    }
+
+    console.log(newTabSocket)
 
   return (
 <>
@@ -449,7 +365,7 @@ const CallUser = () => {
 
         <Box style={{position: 'relative',height: '80%',border: '1px solid green'}}>
                 
-                <video id="large-video" width="100%" height="100%" ></video>
+                <video id="large-video" width="100%" height="100%"  ></video>
 
             <Box style={{position: 'absolute', border: '1px solid brown', height: '23%', width: '9%', left: '90%', top: '0%'}}>
                 <video id="small-video" width="100%" height="100%" ></video>
@@ -459,9 +375,9 @@ const CallUser = () => {
         </Box>
         
         <Box style={{display: 'flex', justifyContent: 'space-evenly',height: '10%',border: '1px solid yellow',alignItems: 'center'}}>
-            <VideocamIcon />
+            <VideocamIcon onClick={handleHideVideo}/>
             <CallEndIcon onClick={settEndText} />
-            <MicIcon />
+            <MicIcon onClick={handleMuteVideo}/>
         </Box>
     
 

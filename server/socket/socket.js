@@ -18,7 +18,7 @@ const server = https.createServer({key,cert},app) //create a http server from ex
 //new Server = socketio
 const io = socketio(server,{cors: {
 //   origin: 'http://localhost:3001',      //react frontend is runing in 3001,
-  origin: ['https://192.168.1.95:3001','*'],
+  origin: ['https://192.168.18.76:3001','*'],
   methods: ["GET", "POST", "UPDATE", "DELETE"]
 
 }}) 
@@ -218,15 +218,17 @@ const socket = ()=>{
 
         socket.on('i-am-new-tab-from-reciever-side', (newTabSocket)=>{
             newTabFromRecieverSide = newTabSocket
-            // recieverTabId = newTabSocket
+           
             recieverOffer = {...recieverOffer, tabId: newTabSocket}
 
-            // socket.emit('place-this-in-remote-descrip', callerOffer)
-            // console.log(recieverTabId)
-            console.log('4. revievr is online')
-            console.log(newTabFromRecieverSide)
-        
-            io.to(newTabFromRecieverSide).emit('recieverIsOnlineSendOffer', callerOffer)
+            console.log('6. reciever is online now send him offer of caller: ', newTabFromRecieverSide)
+            
+            if(callerOffer.localOffer){
+                io.to(newTabFromRecieverSide).emit('recieverIsOnlineSendOffer', callerOffer)
+
+            }else{
+                console.log('offer from caller has not been saved in socket server yet!')
+            }
 
         })
 
@@ -260,148 +262,7 @@ const socket = ()=>{
 
         })
 
-        // socket.on('sendIceCandidateToSignalingServer-in-caller-side',(IceInfo)=>{
-        //     console.log(` caller side: ${IceInfo.localUserId}`)
-        //     callerOffer = {...callerOffer, localIceCandidate: [...callerOffer.localIceCandidate, IceInfo.iceCandidate]}
-        // })
-
-        // socket.on('iceCandiAddingComplete-in-caller-side',(newTabCallerVarClientSide))
-
-        // socket.on('')
-
-
-        // socket.on('sendIceCandidateToSignalingServer',(IceInfo)=>{
-           
-
-        //     //it means the iceInfo contains the info of iceCandidates taken from the localUser i.e. the caller
-        //     if(IceInfo.localUserId == newTabFromCallerSide){
-        //         console.log(` caller side: ${IceInfo.localUserId}`)
-        //         callerOffer = {...callerOffer, localIceCandidate: [...callerOffer.localIceCandidate, IceInfo.iceCandidate]}
-
-        //     }
-
-        //     if(IceInfo.localUserId == newTabFromRecieverSide){
-        //         console.log(`reciever side: ${IceInfo.localUserId}`)
-        //         recieverOffer = {...recieverOffer, localIceCandidate: [...recieverOffer.localIceCandidate, IceInfo.iceCandidate]}
-
-        //     }
-           
-        //         // console.log('ice candi are aded')
-        //         // offer = {...offer, localIceCandidate: [...offer.localIceCandidate, IceInfo.iceCandidate] }
-        //         // console.log(offer)
-           
-
-        //     // console.log(offer)
-        // }) 
-
-        // socket.on('iceCandiAddingComplete',()=>{
-        //     console.log('all ice candi are added successfully')
-
-        //     if(callerOffer.tabId == newTabFromCallerSide){
-        //         //sending calleroffer to recievr
-        //         // socket.to(newTabFromRecieverSide).emit('console-log-offer', callerOffer)
-        //         console.log(newTabFromRecieverSide)
-        //         console.log('here1')
-        //         callerOffer = []
-
-        //     }
-
-        //     if(recieverOffer.tabId == newTabFromRecieverSide){
-        //         //sending recieveroffer to caller
-        //         console.log(newTabFromCallerSide)
-        //         console.log(newTabFromRecieverSide)
-        //         socket.to(newTabFromCallerSide).emit('console-log-offer', recieverOffer)
-        //         console.log('here2')
-        //         recieverOffer = []
-
-        //     }
-
        
-            
-        // })
-
-        // socket.on('iceCandiAddingComplete-in-caller-side', ()=>{
-            
-        // })
-
-        // socket.on('iceCandiAddingComplete-in-reciever-side', (iceInfoRecieverSide)=>{
-
-        //     //ice candi is comeplete in reciever side only when reciever has accepted the call. if iceinfoRecievesdie is okay we can start the offer exchange process.
-
-
-        //     // console.log('///recievr ice')
-        //     // console.log(iceInfoRecieverSide)
-        //     // console.log('///recievr ice')
-        //     console.log('///recievr offer')
-            
-
-        //     iceInfoRecieverSide.map((e)=>{
-        //         recieverOffer = {...recieverOffer, localIceCandidate: [...recieverOffer.localIceCandidate, e.iceCandidate]}
-        //     })
-
-        //     console.log(recieverOffer)
-
-        //     //iceCandi of both caller and reciever should be added in this point. now we should initiate offer exchacnge betweeen users.
-
-            
-        //     console.log(newTabFromCallerSide);
-        //     console.log(newTabFromRecieverSide)
-
-        //     socket.to(newTabFromCallerSide).emit('offer-from-recievr', recieverOffer)
-
-        //     socket.to(newTabFromRecieverSide).emit('offer-from-caller', callerOffer)
-        // })
-
-        // socket.on('pass-offer-to-reciever', (offer)=>{
-
-        // })
-
-        // socket.on('pass-offer-to-reciever', (offer)=>{
-
-        // })
-
-
-
-        socket.on('iceCandiAddingComplete-in-caller-side', (iceInfoCallerSide)=>{
-
-            // console.log('///caller ice')
-            // // console.log(iceInfoCallerSide)
-            // console.log('///caller ice')
-            console.log('///11. ice candi from caller reached socketserver///')            
-
-            iceInfoCallerSide.map((e)=>{
-                callerOffer = {...callerOffer, localIceCandidate: [...callerOffer.localIceCandidate, e.iceCandidate]}
-            })
-            
-            // console.log(callerOffer)
-            console.log('12. caller ice candi is sent to reciver')
-
-            socket.to(newTabFromRecieverSide).emit('save-ice-candi-of-caller', callerOffer)
-            
-
-        })
-
-        socket.on('iceCandiAddingComplete-in-reciever-side', (iceInfoRecieverSide)=>{
-            console.log('///25. ice candi from reciver reached socketserver///')     
-            
-            iceInfoRecieverSide.map((e)=>{
-                recieverOffer = {...recieverOffer, localIceCandidate: [...recieverOffer.localIceCandidate, e.iceCandidate]}
-            })
-
-            console.log(recieverOffer)
-            console.log('26. recever ice candi is sent to caller')
-            socket.to(newTabFromCallerSide).emit('save-ice-candi-of-reciever', recieverOffer)
-
-
-
-        })
-
-
-        socket.on('take-answer-and-set-remote-to-caller', (answer)=>{
-            console.log('17. answer from reciever reached socket server')
-            // console.log(answer)
-            io.to(newTabFromCallerSide).emit('set-remote-descrip-this-answer', answer)
-        })
 
         socket.on('give-me-ice-candi-from-reciever',()=>{
             console.log('22. requesting recievr for its ice candi from server')
@@ -414,36 +275,45 @@ const socket = ()=>{
         })
 
 
+        socket.on('iceCandiAddingComplete-in-reciever-side', (iceInfoRecieverSide)=>{
+            console.log('///28. ice candi from reciver reached socketserver///')     
+            
+            iceInfoRecieverSide.map((e)=>{
+                recieverOffer = {...recieverOffer, localIceCandidate: [...recieverOffer.localIceCandidate, e.iceCandidate]}
+            })
 
+            // console.log(recieverOffer)
+            console.log('29. recever ice candi is sent to caller')
+            socket.to(newTabFromCallerSide).emit('save-ice-candi-of-reciever', recieverOffer)
 
+        })
+      
+        socket.on('iceCandiAddingComplete-in-caller-side', (iceInfoCallerSide)=>{
 
+            console.log('///21. ice candi from caller reached socketserver///')            
 
-     
+            iceInfoCallerSide.map((e)=>{
+                callerOffer = {...callerOffer, localIceCandidate: [...callerOffer.localIceCandidate, e.iceCandidate]}
+            })
+            
+            // console.log(callerOffer)
+            console.log('22. caller ice candi is sent to reciver')
 
+            socket.to(newTabFromRecieverSide).emit('save-ice-candi-of-caller', callerOffer)
+            
 
-
-        // socket.on('save-offer-from-reciever-side', (localOffer)=>{
-        //     console.log('saving offer from reciever user')
-        //     recieverOffer = {...recieverOffer, localOffer: localOffer}
-        //     // console.log(offer)
-        // })
-
-        socket.on('save-offer-from-caller-side', (localOffer)=>{
-            console.log('3.saving offer from caller user')
-            callerOffer = {...callerOffer, localOffer: localOffer}
-            // console.log(offer)
         })
 
+        socket.on('take-answer-and-set-remote-to-caller', (answer)=>{
+            console.log('14. answer from reciever reached socket server')
+            
+            io.to(newTabFromCallerSide).emit('set-remote-descrip-this-answer', answer)
+        })
 
-
-       
-
-
-        
-
-
-
-
+        socket.on('save-offer-from-caller-side', (localOffer)=>{
+            console.log('5.saving offer from caller user')
+            callerOffer = {...callerOffer, localOffer: localOffer}
+        })
 
 
         socket.on('disconnect', () => {
