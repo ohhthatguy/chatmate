@@ -13,13 +13,15 @@ const Homepage = () => {
     const {setSocket, socket, setLocalUser, localUser, onlyRunOnce} = useContext(GlobalContext)
     const inputRef = useRef(null)
     const navigate = useNavigate()
+    let isDarkMode = true;
+    let innerHeight = 0;
 
 
     const setName =()=>{
         console.log(inputRef.current.value)
         if(inputRef.current.value.length >0 ){
             setLocalUser(prev=> ({...prev, name: inputRef.current.value}))
-            navigate('/Options')
+            navigate('/privateOptions')
 
         }
 
@@ -27,6 +29,9 @@ const Homepage = () => {
     
     
     useEffect(()=>{
+        innerHeight = (window.innerHeight);
+        document.querySelector('.wrappeHome').style.height = `${innerHeight}px`;
+        console.log(innerHeight)
 
             if(onlyRunOnce.current){
 
@@ -54,27 +59,55 @@ const Homepage = () => {
     },[])
 
 
-    // console.log(localUser)
-    // console.log(socket)
 
-  return (<Box style={{position: 'realtive'}}>
+  return (<Box className='wrappeHome' style={{position: 'relative', textAlign: 'center',display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: '5rem',backgroundImage: 'radial-gradient(circle, #00308F 0%, black 100%)'}}>
 
-        <Box style={{border: '1px solid white', position: 'absolute', top: '30%', left: '25%', width: '50%', padding: '0.5rem'}}>
+        
 
-           <Box style={{textAlign: 'center', padding: '1rem'}}> 
+        <Box > 
+            <Typography variant='h3' sx={{fontFamily: '"Oswald", sans-serif'}}>  Welcome to ChatMate! </Typography>
+        </Box>
 
-              <Typography variant='h5'>  Welcome to ChatMate! </Typography>
-            
-             </Box>
+            <Box  style={{width: '100%'}}>
 
-            <Box style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.6rem'}}>
+                <Box style={{marginBottom: '1.5rem'}}>
+                    <Typography variant='h5'> Get Started  </Typography>
+                </Box>
 
-                <TextField inputRef={inputRef} variant='outlined' label='Enter UserName' style={{width: '60%'}} />
+
+            <Box style={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.6rem', }}>
+
+
+                <TextField inputRef={inputRef} variant='outlined' label='Enter UserName'   sx={{
+                    width: '70%',
+                        input: {
+                            color: isDarkMode ? 'white' : 'black',
+                        },
+                        '& .MuiInputLabel-root': {
+                            color: isDarkMode ? 'gray' : 'black',
+                        },
+                        '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                                borderColor: isDarkMode ? 'white' : 'black',
+                            },
+                            '&:hover fieldset': {
+                                borderColor: isDarkMode ? '#90caf9' : '#1976d2',
+                            },
+                            '&.Mui-focused fieldset': {
+                                borderColor: isDarkMode ? '#90caf9' : '#1976d2',
+                            },
+                        },
+                    }} />
                 <SendIcon onClick={()=>setName()} fontSize='large'/>
-                
 
             </Box>
+
+
         </Box>
+
+        
+
+       
 
 
     

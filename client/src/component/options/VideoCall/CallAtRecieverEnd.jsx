@@ -73,8 +73,9 @@ const CallAtRecieverEnd = ({caller}) => {
               
                   <CallIcon onClick={receiveCall} />
 
-                  <CallEndIcon onClick={showCallEndingText}/>
-
+                 
+                    <CallEndIcon onClick={showCallEndingText}/>
+                
                   
 
             </DialogActions>

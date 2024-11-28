@@ -69,8 +69,17 @@ const VideoCallSelectionPopup = () => {
                         ?
                          peopleICanCall.map((e,index)=>(
                             <Box style={{display: 'flex', justifyContent: 'space-between'}} key={index}>
+                               
                                 <Box>{e.name}</Box>
-                                <VideocamIcon onClick={()=> handleVideoCall(e)}/>
+
+
+                                    <Box sx={{'&:hover':{
+                                        cursor: 'pointer'
+                                    }}}>
+
+                                        <VideocamIcon onClick={()=> handleVideoCall(e)}/>
+
+                                    </Box>
                             </Box>
                          ))
                         :

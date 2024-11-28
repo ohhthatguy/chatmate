@@ -51,18 +51,16 @@ const CreateRoom = () => {
   return (
     <>
     
-    <Box style={{position: 'relative'}}>
+    <Box style={{position: 'relative', height: '100vh', border: '0px solid green', backgroundImage: 'radial-gradient(circle, #191970 0%, black 100%)'}}>
 
-<Box style={{border: '1px solid white', position: 'absolute', top: '30%', left: '25%', width: '50%', padding: '0.5rem', display: showModal ? 'block' : 'none', zIndex:'1'}}>
+<Box style={{ position: 'relative', top: '30%', left: '6%' , width: '90%', display: showModal ? 'block' : 'none', zIndex:'1'}}>
 
     <Box style={{textAlign: 'center', padding: '1rem'}}> 
 
-        <Typography variant='h5'>{` Your Private ROOM ID: ${room.roomID} `}</Typography>
+        <Typography variant='h5' sx={{fontFamily: '"Oswald", sans-serif'}}>{` Your Private ROOM ID: ${room.roomID} `}</Typography>
         <Typography variant='h6'>  Waiting for users... </Typography>
 
     </Box>
-
-    
 
 </Box>
 

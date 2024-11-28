@@ -10,10 +10,13 @@ import { GlobalContext } from '../../../context/context';
 const EnterRoom = () => {
     // const [showModal, setShowModal] = useState(true)
     const [enteredRoomId, setEnteredRoomId] = useState('')
+    let isDarkMode = true;
 
     const { message, setMessage,setLocalUser, localUser,room,setRoom, socket,showModal, setShowModal} = useContext(GlobalContext)
 
     useEffect(()=>{
+
+        
         setLocalUser(prev=>({...prev, creator:false}))  
 
         // socket.emit('enterroom-is-opened')
@@ -39,10 +42,6 @@ const EnterRoom = () => {
         })
 
 
-        // socket.on('notif-that-this-user-is-room-creater-in-enterroom', (localUser)=>{
-        //     setMessage(prev=>[...prev, { message: `${localUser.name} created the room.`, sender: 'System', senderId: '', roomId: '', isNotification: true}])
-        // })
-
         
 
         return(()=>{
@@ -66,37 +65,67 @@ const EnterRoom = () => {
 
     }
 
-    // console.log(showModal)
-    // console.log(message)
-    // console.log(localUser)
+
+
+
+   
 
   return (
-    <Box style={{position: 'relative'}}>
 
-        <Box style={{border: '1px solid white', position: 'absolute', top: '30%', left: '25%', width: '50%', padding: '0.5rem', display: showModal ? 'block' : 'none', zIndex:'1'}}>
 
-            <Box style={{textAlign: 'center', padding: '1rem'}}> 
+<Box className='container' style={{position: 'relative', height: '100vh', border: '0px solid green', backgroundImage: 'radial-gradient(circle, #191970 0%, black 100%)'}}>
 
-                <Typography variant='h5'>  ENTER ROOM ID </Typography>
-            
-            </Box>
+    <Box style={{ position: 'relative', top: '30%', left: '6%' , width: '90%', display: showModal ? 'block' : 'none', zIndex:'1', border: '1px solid red'}}>
 
-            <Box style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.6rem'}}>
+        <Box style={{textAlign: 'center', padding: '1rem'}}> 
 
-                <TextField value={enteredRoomId} onChange={(e)=> setEnteredRoomId(e.target.value)} variant='outlined' label='Enter RoomID' style={{width: '60%'}} />
-                    
-                <SendIcon onClick={()=>handleRoomID()} fontSize='large'/>
+            <Typography variant='h5' sx={{fontFamily: '"Oswald", sans-serif'}}>  ENTER ROOM ID </Typography>
+        
+        </Box>
+
+        <Box style={{marginBottom: '1.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.6rem',position: 'relative'}}>
+
+            <TextField value={enteredRoomId} onChange={(e)=> setEnteredRoomId(e.target.value)} variant='outlined' label='Enter RoomID'  sx={{
+                    width: '70%',
+                  
+                        input: {
+                            color: isDarkMode ? 'white' : 'black',
+                        },
+                        '& .MuiInputLabel-root': {
+                            color: isDarkMode ? 'gray' : 'black',
+                        },
+                        '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                                borderColor: isDarkMode ? 'white' : 'black',
+                            },
+                            '&:hover fieldset': {
+                                borderColor: isDarkMode ? '#90caf9' : '#1976d2',
+                            },
+                            '&.Mui-focused fieldset': {
+                                borderColor: isDarkMode ? '#90caf9' : '#1976d2',
+                            },
+                        },
+                    }} />
                 
-
-            </Box>
+            <SendIcon onClick={()=>handleRoomID()} fontSize='large'/>
+            
 
         </Box>
 
-        <Room/>
-   
-
     </Box>
-  )
+
+    <Room/>
+
+
+</Box>
+    
+)
+
+      
+
+
+
+  
 }
 
 export default EnterRoom

@@ -1,11 +1,15 @@
 import React, {useEffect, useState, useContext, useRef} from 'react'
 import { Box, Button, Typography} from '@mui/material';
 import VideocamIcon from '@mui/icons-material/Videocam';
+import VideocamOffIcon from '@mui/icons-material/VideocamOff';
+
 import MicIcon from '@mui/icons-material/Mic';
+import MicOffIcon from '@mui/icons-material/MicOff';
+
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import { GlobalContext } from '../../../context/context';
 import { io } from "socket.io-client";
-// import {fetchUserMedia,createPeerConAndAddMediaTrack} from './VidCallScript'
+
 
 const RecieveCall = () => {
 
@@ -34,6 +38,7 @@ const RecieveCall = () => {
     let remoteStreamVar = new MediaStream()
     let largeVideoEle;
     let smallVideoEle;
+    let innerHeight=0;
 
 if(oneTimeOnly.current){
         //no localstream means we have to get user media 
@@ -59,7 +64,9 @@ if(oneTimeOnly.current){
          largeVideoEle = document.querySelector('#large-video');
          smallVideoEle =  document.querySelector('#small-video');
 
-        
+         innerHeight = (window.innerHeight)-10;
+         document.querySelector('.recieverWrapper').style.height = `${innerHeight}px`;
+         console.log(innerHeight)
 
         const findIceCandiAndSendToCallerFromReciever = async()=>{
 
@@ -151,12 +158,7 @@ if(oneTimeOnly.current){
 
            
             
-            // setRemoteAndLocalDescription(callerOffer)
-
-
-            //added
-
-            //commenteed rnn
+           
             console.log('9. get reciever user media')
 
                 localStreamVar = await navigator.mediaDevices.getUserMedia({video: true, audio: true})
@@ -189,22 +191,6 @@ if(oneTimeOnly.current){
 
                     console.log(remoteStreamVar)
 
-                    // if(remoteStreamVar.active){
-                    //     //place 
-                    //     const tempStream = largeVideoEle.srcObject;
-
-                    //     largeVideoEle.srcObject = smallVideoEle.srcObject; 
-                    //     largeVideoEle.onloadedmetadata = () => {
-                    //         largeVideoEle.play().catch((err) => console.error('Error playing large video:', err));
-                    //     };
-
-                    //     smallVideoEle.srcObject = tempStream;
-                    //     smallVideoEle.onloadedmetadata = () => {
-                    //         smallVideoEle.play().catch((err) => console.error('Error playing small video:', err));
-                    //     };
-
-
-                    // }
     
                 });
 
@@ -231,17 +217,51 @@ if(oneTimeOnly.current){
 
              if(remoteStreamVar.active){
                 //place 
-                const tempStream = largeVideoEle.srcObject;
+                // const tempStream = largeVideoEle.srcObject;
 
-                largeVideoEle.srcObject = smallVideoEle.srcObject; 
-                largeVideoEle.onloadedmetadata = () => {
-                    largeVideoEle.play().catch((err) => console.error('Error playing large video:', err));
-                };
+                // largeVideoEle.srcObject = smallVideoEle.srcObject; 
+                // smallVideoEle.srcObject = tempStream;
 
-                smallVideoEle.srcObject = tempStream;
-                smallVideoEle.onloadedmetadata = () => {
-                    smallVideoEle.play().catch((err) => console.error('Error playing small video:', err));
-                };
+                // largeVideoEle.onloadedmetadata = () => {
+                //     largeVideoEle.play().catch((err) => console.error('Error playing large video:', err));
+                // };
+
+                // smallVideoEle.onloadedmetadata = () => {
+                //     smallVideoEle.play().catch((err) => console.error('Error playing small video:', err));
+                // };
+
+                
+                const tempLargeStream = largeVideoEle.srcObject;
+                const tempSmallStream = smallVideoEle.srcObject;
+
+                // Temporarily set both srcObject to null with a small delay to allow proper cleanup
+                setTimeout(() => {
+                    largeVideoEle.srcObject = null;
+                }, 100);
+
+                // Set the srcObject for large video element to the small stream after clearing the previous one
+                setTimeout(() => {
+                    largeVideoEle.srcObject = tempSmallStream;
+                    largeVideoEle.onloadedmetadata = () => {
+                        console.log('Large video stream loaded');
+                        largeVideoEle.play().catch((err) => console.error('Error playing large video:', err));
+                    };
+                }, 200); // Delay to ensure the previous `srcObject = null` is processed before reassigning
+
+                // Temporarily clear the small video element stream with a slight delay
+                setTimeout(() => {
+                    smallVideoEle.srcObject = null;
+                }, 300);
+
+                // Set the srcObject for small video element to the large stream after clearing the previous one
+                setTimeout(() => {
+                    smallVideoEle.srcObject = tempLargeStream;
+                    smallVideoEle.onloadedmetadata = () => {
+                        console.log('Small video stream loaded');
+                        smallVideoEle.play().catch((err) => console.error('Error playing small video:', err));
+                    };
+                }, 400); // Slight delay before assigning the large stream to the small video
+
 
 
             }
@@ -334,29 +354,42 @@ console.log(newTabSocket)
         setShowCallEndedText('call Ended!')
     }
 
-     const handleHideVideo = ()=>{
-        console.log('hideVideo: ', hideVideo)
-        if(!hideVideo){
+    const handleHideVideo = (status)=>{
+        console.log('vidSatus: ', status)
+
+        if(status == 'vidOn'){
             videoTracks.enabled = false; // Disable the video track (hide the video)
-            hideVideo = true;
+            
+            document.querySelector('.vidOn').style.display = 'none';
+            document.querySelector('.vidOff').style.display = 'block';
 
         }else{
 
             videoTracks.enabled = true; // Disable the video track (hide the video)
-            hideVideo = false;
+           
+            document.querySelector('.vidOn').style.display = 'block';
+            document.querySelector('.vidOff').style.display = 'none';
+           
         }
     }
 
-    const handleMuteVideo = ()=>{
-        console.log('muteAudio: ', mute);
+    const handleMuteVideo = (status)=>{
+        console.log('audio : ', status);
         console.log(audioTracks)
-        if(!mute){
+        
+        if(status == 'audioOn'){
             // localStreamVar.getAudioTracks().forEach(track => track.stop());
             audioTracks[0].enabled = false;
-            mute = true;
+            document.querySelector('.audioOn').style.display = 'none';
+            document.querySelector('.audioOff').style.display = 'block';
+
+            // mute = true;
+            // setMute(true)
         } else{
             audioTracks[0].enabled = true;
-            mute = false;
+            document.querySelector('.audioOn').style.display = 'block';
+            document.querySelector('.audioOff').style.display = 'none';
+            // setMute(false)
         } 
     }
 
@@ -367,32 +400,58 @@ console.log(newTabSocket)
     {
         showCallEndedText.length == 0 ?
     
-        <Box style={{border: '1px solid red', height: '100vh'}}>
+        <Box className='recieverWrapper' style={{ }}>
     
     
-            
-            <Box style={{display: 'flex', justifyContent: 'space-evenly', alignItems: 'center', height: '10%',border: '1px solid blue'}}>
     
-              <Box>UserName</Box>
-              <Box> calling... / connected</Box>
-    
-            </Box>
-    
-            <Box style={{position: 'relative',height: '80%',border: '1px solid green'}}>
+            <Box style={{position: 'relative',height: '90%'}}>
                     
                     <video id="large-video" width="100%" height="100%" ></video>
     
-                <Box style={{position: 'absolute', border: '1px solid brown', height: '23%', width: '9%', left: '90%', top: '0%'}}>
+                <Box style={{position: 'absolute',  height: '23%', width: '9%', left: '90%', top: '0%'}}>
                     <video id="small-video" width="100%" height="100%" ></video>
                     
     
                 </Box>
             </Box>
             
-            <Box style={{display: 'flex', justifyContent: 'space-evenly',height: '10%',border: '1px solid yellow',alignItems: 'center'}}>
-                <VideocamIcon onClick={handleHideVideo}/>
+            <Box style={{display: 'flex', justifyContent: 'space-evenly',height: '10%',alignItems: 'center'}}>
+                
+                <Box className='vidOn' sx={{display: 'block', '&:hover':{
+                        cursor: 'pointer',
+                        transform: 'scale(1.2)'
+                    }}}>
+                    <VideocamIcon onClick={()=>handleHideVideo('vidOn')}/>
+                </Box>
+
+                <Box className='vidOff' sx={{display: 'none', '&:hover':{
+                        cursor: 'pointer',
+                        transform: 'scale(1.2)'
+                    }}}>
+                    <VideocamOffIcon onClick={()=>handleHideVideo('vidOff')}/>
+                </Box>
+
+<Box sx={{ '&:hover':{
+                        cursor: 'pointer',
+                        transform: 'scale(1.2)'
+                    }}}>
                 <CallEndIcon onClick={settEndText} />
-                <MicIcon onClick={handleMuteVideo}/>
+                </Box>
+
+                <Box className='audioOn' sx={{display: 'block', '&:hover':{
+                        cursor: 'pointer',
+                        transform: 'scale(1.2)'
+                    }}}>
+                    <MicIcon onClick={()=>handleMuteVideo('audioOn')}/>
+                </Box>
+
+                <Box className='audioOff' sx={{display: 'none', '&:hover':{
+                        cursor: 'pointer',
+                        transform: 'scale(1.2)'
+                    }}}>
+                    <MicOffIcon onClick={()=>handleMuteVideo('audioOff')}/>
+                </Box>
+
             </Box>
         
     
@@ -400,11 +459,14 @@ console.log(newTabSocket)
     
         :
     
-        <Box style={{display: 'grid', placeItems: 'center'}}>
-            <Box style={{textAlign: 'center'}}>
-               {showCallEndedText}
+        <Box className='recieverWrapper' style={{display: 'grid', placeItems: 'center'}}>
+            <Box>
+                <Box style={{textAlign: 'center'}}>
+                {showCallEndedText}
+                </Box>
+
+                <Button variant='contained' onClick={closeThisAndReturnToRoom}>Close</Button>
             </Box>
-            <Button variant='contained' onClick={closeThisAndReturnToRoom}>Close</Button>
         </Box>
     }
     

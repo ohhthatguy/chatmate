@@ -17,14 +17,17 @@ const Room = () => {
     const [localMessage, setLocalMessage] = useState('')
     const tempRefreshFlag = useRef(false)
     const [caller,setCaller] = useState('')
+    let innerHeight = 0;
     // const location = useLocation()
     
     // console.log(location.pathname)
 
 
     useEffect(()=>{
-
-     
+        innerHeight = (window.innerHeight)-10;
+        document.querySelector('.wrapper').style.height = `${innerHeight}px`;
+        console.log(innerHeight)
+        
 
         socket.on('notif-this-is-roomCreator', (localUserCreator)=>{
             setMessage(prev=>[...prev,{ message: `${localUserCreator.name} created the room.`, sender: 'System', senderId: '', roomId: localUser.roomID, isNotification: true}])
@@ -146,65 +149,127 @@ const Room = () => {
     },[refreshList])
 
 console.log(incomingCallModal)
-    return (<Box>
 
-        <Box style={{border: '2px solid red', height: '100vh', width: '100%' ,padding: '0.5rem', filter: showModal && 'blur(5px)', position: 'realtive'}}>
 
-            {/* <Box style={{position: 'absolute', right: '0px', border: '1px solid white'}}>
-                {`RoomID: ${room.roomID}`}
-                <Box>
-                </Box>
-                
-            </Box> */}
 
-            <Box style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end', border: '1px solid white'}}>
-                <Box> {`RoomID: ${room.roomID}`} </Box>
-                <VideoChatIcon onClick={()=>handleVideoCallSelection()} fontSize='large'/>
+    // return (<Box className='wrapper' style={{position: 'relative', border:'2px solid red'}}>
+    //     <Box style={{height: '100vh', width: '100%' , filter: showModal && 'blur(5px)', position: 'realtive', border: '1px solid brown'}}>
+
+         
+
+    //         <Box style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end', border: '1px solid white'}}>
+    //             <Box> {`RoomID: ${room.roomID}`} </Box>
+    //             <VideoChatIcon onClick={()=>handleVideoCallSelection()} fontSize='large'/>
 
             
-            </Box>
+    //         </Box>
 
-            {/* msges seen here */}
-           <Box style={{textAlign: 'center',display: 'flex', justifyContent:'flex-end', alignItems:'flex-start' ,  flexDirection: 'column' ,padding: '1rem', border: '1px solid white', height: '90%'}}> 
+    //         {/* msges seen here */}
+    //        <Box style={{textAlign: 'center',display: 'flex', justifyContent:'flex-end', alignItems:'flex-start' ,  flexDirection: 'column' , border: '1px solid blue', height: '95vh', overflowY: 'scroll'}}> 
                 
-                   {
-                    message.length > 0 && message.map((e,index)=>(
+    //                {
+    //                 message.length > 0 && message.map((e,index)=>(
 
-                         !e.isNotification ?
-                            <Box key={index}>{`${e.sender}: ${e.message}`}</Box>
-                            :
-                            <Box key={index}>{`${e.sender}: ${e.message}`}</Box>
-                            //this is a notification
+    //                      !e.isNotification ?
+    //                         <Box key={index}>{`${e.sender}: ${e.message}`}</Box>
+    //                         :
+    //                         <Box key={index}>{`${e.sender}: ${e.message}`}</Box>
+    //                         //this is a notification
                         
-                    ))
-                   }
+    //                 ))
+    //                }
                     
 
-            </Box>
+            
+    //                 </Box>
 
 
-            {/* wrtie message here */}
+    //         {/* wrtie message here */}
 
-             <Box style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.6rem', border: '0px solid green'
-             }}>
+    //          <Box style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', gap: '0.6rem', border: '1px solid green', height: '10%'
+    //          }}>
 
-                <TextareaAutosize onChange={(e)=> setLocalMessage(e.target.value)}  value={localMessage} minRows={2} style={{resize: 'none', width: '70%'}} />
-                <SendIcon onClick={()=> handleMessage()}/>
+    //             <TextareaAutosize onChange={(e)=> setLocalMessage(e.target.value)}  value={localMessage} minRows={2} style={{resize: 'none', width: '70%'}} />
+    //             <SendIcon onClick={()=> handleMessage()}/>
 
 
-            </Box>
+    //         </Box>
 
-            {openVidCallSelectionModal  && <VideoCallSelectionPopup />}
+
+    //         {openVidCallSelectionModal  && <VideoCallSelectionPopup />}
 
     
-            {incomingCallModal  &&<CallAtRecieverEnd caller={caller} />}
+    //         {incomingCallModal  &&<CallAtRecieverEnd caller={caller} />}
 
+    //     </Box>
+
+
+
+    
+    //     </Box>)
+
+    return (<Box className='wrapper' style={{  width: '100%' , filter: showModal && 'blur(5px)', position: 'realtive', border: '0px solid brown'}}>
+
+         
+{/* justifyContent: 'flex-end', alignItems: 'flex-end', */}
+        <Box style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center'}}>
+            <Box sx={{fontFamily: '"Oswald", sans-serif', width: '100%', textAlign: 'center'}}> {`RoomID: ${room.roomID}`} </Box>
+
+            <Box sx={{ width: '100%', textAlign: 'right', marginRight: '20px', '&:hover':{
+                cursor: 'pointer'
+            }}}>
+            {/* <VideoChatIcon onClick={()=>handleVideoCallSelection()} fontSize='large'/> */}
+            <span class="material-symbols-outlined handleCursor" onClick={()=>handleVideoCallSelection()} > 
+            videocam
+            </span>
+            </Box>
+        
         </Box>
 
+        {/* msges seen here */}
+        {/* display: 'flex', justifyContent:'flex-end', alignItems:'flex-start' ,  flexDirection: 'column' , */}
+        {/* <Box style={{ border: '1px solid white'}}> */}
+                <Box style={{ position: 'relative', height: '88%',border: '1px solid white', padding: '0rem 2rem 0rem 2rem', overflowY: 'auto', overflowX:'hidden',}}> 
+                        
+                        {
+                            message.length > 0 && message.map((e,index)=>(
+
+                                !e.isNotification ?
+                                    <Box key={index} style={{fontSize: '1.2rem', margin: '0.5rem 0rem 0.25rem 0rem',padding:'10px', fontFamily: '"Oswald", sans-serif', border: '1px solid white', borderRadius:'10px 50px 10px 10px'}}>{`${e.sender}: ${e.message}`}</Box>
+                                    :
+                                    <Box key={index} style={{fontSize: '1.2rem', margin: '0.5rem 0rem 0.25rem 0rem', padding:'5px', fontFamily: '"Oswald", sans-serif', border: '1px solid white', borderRadius:'10px 50px 10px 10px'}} >{`${e.sender}: ${e.message}`}</Box>
+                                    //this is a notification
+                                
+                            ))
+                        }
+                            
+
+                    
+                </Box>
 
 
-    
-        </Box>)
+        {/* wrtie message here */}
+
+                <Box style={{display: 'flex', justifyContent: 'center', alignItems: 'center', width: '99.5%',paddingTop: '8px', overflowX: 'hidden', gap: '0.6rem'
+                }}>
+
+                    <TextareaAutosize onChange={(e)=> setLocalMessage(e.target.value)}  value={localMessage} minRows={2} style={{resize: 'none', width: '70%'}} />
+                    <SendIcon onClick={()=> handleMessage()}/>
+
+
+                </Box>
+        {/* </Box> */}
+
+
+        {openVidCallSelectionModal  && <VideoCallSelectionPopup />}
+
+
+        {incomingCallModal  &&<CallAtRecieverEnd caller={caller} />}
+
+    </Box>)
+
+
+
 }
 
 export default Room

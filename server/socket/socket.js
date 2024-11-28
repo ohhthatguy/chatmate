@@ -251,14 +251,68 @@ const socket = ()=>{
 
             socket.to(recieverId).emit('end-call')
             if(newTabFromRecieverSide){
-                socket.to(newTabFromRecieverSide).emit('end-call')
+                socket.to(newTabFromRecieverSide).emit('end-call');
             }
+
+         
+             recieverOffer = {
+            
+                localUserId: '',
+                localOffer: '',
+                localIceCandidate: [],
+                remoteUserId: '',
+                remoteOffer: '',
+                remoteIceCandidate: [],
+                tabId: ''
+            
+        
+        };
+        
+         callerOffer = {
+            
+            localUserId: '',
+            localOffer: '',
+            localIceCandidate: [],
+            remoteUserId: '',
+            remoteOffer: '',
+            remoteIceCandidate: [],
+            tabId:''
+         };
+        
+        
+
         })
 
 //call end on RecieveCall component
         socket.on('call-end-in-RecieveCall', (callerID)=>{
 
-            socket.to(newTabFromCallerSide).emit('end-call')
+            socket.to(newTabFromCallerSide).emit('end-call');
+           
+             recieverOffer = {
+            
+                localUserId: '',
+                localOffer: '',
+                localIceCandidate: [],
+                remoteUserId: '',
+                remoteOffer: '',
+                remoteIceCandidate: [],
+                tabId: ''
+            
+        
+        };
+        
+         callerOffer = {
+            
+            localUserId: '',
+            localOffer: '',
+            localIceCandidate: [],
+            remoteUserId: '',
+            remoteOffer: '',
+            remoteIceCandidate: [],
+            tabId:''
+         };
+        
+        
 
         })
 
