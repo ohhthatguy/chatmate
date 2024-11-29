@@ -1,24 +1,32 @@
 const express = require('express')
-// const cors = require('cors')
 const fs = require('fs')
 const https = require('https')
-// const {Server} = require('socket.io')
 const socketio = require('socket.io');
 const app = express()
 
 
+let server;
+
+if(process.env.NODE_ENV === 'production'){
+    server = app;
+}else{
+    
 const key = fs.readFileSync('192.168.1.95-key.pem')
 const cert = fs.readFileSync('192.168.1.95.pem')
+ server = https.createServer({key,cert},app) //create a http server from express that handles the socket.io requests
 
 
+}
 
-const server = https.createServer({key,cert},app) //create a http server from express that handles the socket.io requests
+
 //attach the socket.io to server with cors
 
 //new Server = socketio
 const io = socketio(server,{cors: {
 //   origin: 'http://localhost:3001',      //react frontend is runing in 3001,
-  origin: ['https://192.168.18.76:3000','*'],
+  origin: process.env.NODE_ENV === 'production' ? 
+  ['']:
+  [`${process.env.URL_TO_FRONTEND}`,'*'],
   methods: ["GET", "POST", "UPDATE", "DELETE"]
 
 }}) 
@@ -29,7 +37,7 @@ let userInPrivateRoom = [];
 let chatHistory = [];
 let newTabFromCallerSide;
 let newTabFromRecieverSide;
-let recieverTabId;
+
 
 let recieverOffer = {
     

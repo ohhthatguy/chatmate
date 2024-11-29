@@ -75,7 +75,7 @@ const EnterRoom = () => {
 
 <Box className='container' style={{position: 'relative', height: '100vh', border: '0px solid green', backgroundImage: 'radial-gradient(circle, #191970 0%, black 100%)'}}>
 
-    <Box style={{ position: 'relative', top: '30%', left: '6%' , width: '90%', display: showModal ? 'block' : 'none', zIndex:'1', border: '1px solid red'}}>
+    <Box style={{ position: 'relative', top: '30%', left: '6%' , width: '90%', display: showModal ? 'block' : 'none', zIndex:'1'}}>
 
         <Box style={{textAlign: 'center', padding: '1rem'}}> 
 
