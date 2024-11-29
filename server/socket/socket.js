@@ -3,17 +3,17 @@ const fs = require('fs')
 const https = require('https')
 const socketio = require('socket.io');
 const app = express()
-const path = require("path")
+// const path = require("path")
 
 
 let server;
-const __dirname1 = path.resolve();
+// const __dirname1 = path.resolve();
 if(process.env.NODE_ENV === 'production'){
-    app.use(express.static(path.join(__dirname1, "/client/build")));
+    // app.use(express.static(path.join(__dirname1, "/client/build")));
     server = app;
-    app.get('*',(req,res)=>{
-        res.sendFile(__dirname1, "client", "build", "index.html");
-    })
+    // app.get('*',(req,res)=>{
+    //     res.sendFile(__dirname1, "client", "build", "index.html");
+    // })
 
 }else{
     
