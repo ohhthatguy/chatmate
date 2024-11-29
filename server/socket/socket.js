@@ -18,7 +18,7 @@ const server = https.createServer({key,cert},app) //create a http server from ex
 //new Server = socketio
 const io = socketio(server,{cors: {
 //   origin: 'http://localhost:3001',      //react frontend is runing in 3001,
-  origin: ['https://192.168.18.76:3001','*'],
+  origin: ['https://192.168.18.76:3000','*'],
   methods: ["GET", "POST", "UPDATE", "DELETE"]
 
 }}) 
@@ -172,17 +172,41 @@ const socket = ()=>{
         })
 
         socket.on('people-in-room-excpet-me',(localUser)=>{
-            let clients = io.sockets.adapter.rooms.get(roomIdServerVar)
-            clients = [...clients]
+            let tempClients = io.sockets.adapter.rooms.get(roomIdServerVar)
+            clients = [...tempClients]
             // console.log(clients)
 
             clients = clients.filter((e)=> e !== localUser.id)
+
+
+
+            let peopleICanCall = [];
+            clients.map((e)=>{
+                if(e == callerOffer.localUserId || e == callerOffer.remoteUserId){
+                    peopleICanCall = [...peopleICanCall, {
+                        id: e,
+                        status: 'alreadyOnCall'
+                    }]
+                }else{
+                    peopleICanCall = [...peopleICanCall, {
+                        id: e,
+                        status: 'readyToCall'
+                    }]
+                }
+            })
+
+            console.log('[][][][][]');
+            console.log(peopleICanCall);
+            console.log('[][][][][]');
+
             
             // console.log('////////////')
             // console.log(localUser.name)
             // console.log(clients)
             // console.log(userInPrivateRoom)
-            socket.emit('take-people-in-room-excpet-me', clients,userInPrivateRoom)
+            // socket.emit('take-people-in-room-excpet-me', clients,userInPrivateRoom)
+            socket.emit('take-people-in-room-excpet-me', peopleICanCall,userInPrivateRoom)
+
             // socket.to(roomIdServerVar).emit('take-people-in-room-excpet-me', clients,userInPrivateRoom)
             // io.to(roomIdServerVar).emit('take-people-in-room-excpet-me', clients,userInPrivateRoom)
 
@@ -221,7 +245,17 @@ const socket = ()=>{
            
             recieverOffer = {...recieverOffer, tabId: newTabSocket}
 
+
             console.log('6. reciever is online now send him offer of caller: ', newTabFromRecieverSide)
+
+            // console.log('///caller///');
+            // console.log(callerOffer);
+
+            // console.log('////caller///');
+
+            // console.log('///reciever//');
+            // console.log(recieverOffer);
+            // console.log('//reciever//');
             
             if(callerOffer.localOffer){
                 io.to(newTabFromRecieverSide).emit('recieverIsOnlineSendOffer', callerOffer)
@@ -324,6 +358,9 @@ const socket = ()=>{
         })
 
         socket.on('give-me-ice-candi-from-caller',()=>{
+           
+
+
             console.log('7. requesting caller id for its icecandi from reciever')
             io.to(newTabFromCallerSide).emit('provide-ice-candi-to-reciever')
         })
@@ -383,7 +420,7 @@ const socket = ()=>{
 }
 
 //this server is for socket.io fucntion only that is written in socket.js file
-server.listen(3000, () => {
+server.listen(4000, () => {
     userInPrivateRoom = []
     chatHistory = []
      recieverOffer = {
@@ -412,7 +449,7 @@ server.listen(3000, () => {
 
 };
    
-    console.log('socket.io server is running in 3000');
+    console.log('socket.io server is running in 4000');
 });
 
 

@@ -1,0 +1,15 @@
+client/node_modules
+client/package-lock.json
+server/node_modules
+server/ca.crt
+server/ca.key
+server/cert.key
+server/cert.crt
+server/package-lock.json
+server/192.168.1.95-key.pem
+server/192.168.1.95.pem
+client/.env
+server/.env
+client/.gitignore
+server/.gitignore
+

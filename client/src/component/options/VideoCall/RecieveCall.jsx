@@ -26,13 +26,10 @@ const RecieveCall = () => {
     
     let   peerConnVar;
     const oneTimeOnly = useRef(true)
-    // const [mute, setMute] = useState(false);
-    // const [hideVideo, setHideVideo] = useState(false)
-    // const [audioTracks, setAudioTracks] = useState('')
+   
     let audioTracks;
     let videoTracks;
-    let mute = false;
-    let hideVideo = false;
+  
     let iceGathered = false;
     let  localStreamVar;
     let remoteStreamVar = new MediaStream()
@@ -44,7 +41,7 @@ if(oneTimeOnly.current){
         //no localstream means we have to get user media 
         // fetchUserMedia(setLocalStream, largeVideoEle, smallVideoEle)
     console.log('heere1')
-    newTabSocket = io.connect("https://192.168.18.76:3000")
+    newTabSocket = io.connect(process.env.REACT_APP_URL_TO_BACKEND)
 
     newTabSocket.on("connect", () => {
         console.log('new Tab Socket of reciever side is connected with ID:', newTabSocket.id);

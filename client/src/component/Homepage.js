@@ -1,10 +1,11 @@
-import React, {useState, useEffect, useContext,useRef} from 'react'
+import React, { useEffect, useContext,useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
-import { TextField, Box, Typography, Chip, Grid2, Avatar,Button, Dialog,DialogContent,DialogTitle, DialogContentText, DialogActions } from '@mui/material';
+import { TextField, Box, Typography } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import IconButton from '@mui/material/IconButton';
 import { GlobalContext } from '../context/context';
 import { io } from "socket.io-client";
+// import {dotenv} from 'dotenv';
+
 
 
 
@@ -27,7 +28,7 @@ const Homepage = () => {
 
     }
     
-    
+    // console.log(process.env.REACT_APP_URL_TO_BACKEND);
     useEffect(()=>{
         innerHeight = (window.innerHeight);
         document.querySelector('.wrappeHome').style.height = `${innerHeight}px`;
@@ -35,7 +36,9 @@ const Homepage = () => {
 
             if(onlyRunOnce.current){
 
-                let newSocket = io.connect("https://192.168.18.76:3000") //backend is running in 3000
+                // let newSocket = io.connect("https://192.168.18.76:3000") //backend is running in 3000
+                let newSocket = io.connect(process.env.REACT_APP_URL_TO_BACKEND) //backend is running in 3000
+
                 setSocket(newSocket)
 
                 // Log when the socket successfully connects

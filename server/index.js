@@ -13,8 +13,8 @@ app.use(express.json())
 // app.use('/',router)
 
 //server for handling REST routes is set to 4000
-app.listen(4000, ()=>{
-  console.log('PORT route is running in 4000')
+app.listen(5000, ()=>{
+  console.log('PORT route is running in 5000')
 })
 
 //database

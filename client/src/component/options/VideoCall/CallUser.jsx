@@ -9,8 +9,7 @@ import MicOffIcon from '@mui/icons-material/MicOff';
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import { GlobalContext } from '../../../context/context';
 import { io } from "socket.io-client";
-// import {fetchUserMedia,createPeerConAndAddMediaTrack} from './VidCallScript'
-// import socket from '../../../../../server/socket/socket';
+
 
 
 const CallUser = () => {
@@ -19,16 +18,13 @@ const CallUser = () => {
     let iceInfoCallerSide = [];
 
 
-    // document.querySelector('#local-video');
+  
 
     const {ICEServerConfig,showCallEndedText, setShowCallEndedText,localStream, setLocalStream,remoteStream, setRemoteStream} = useContext(GlobalContext)
-    // const [callerID, setCallerID] = useState('')
-    // const callerID = useRef(null)
+    
     const oneTimeOnly = useRef(true)
    
-    //new socket instance is needed for the component in a new Tab
-    let mute = false;
-    let hideVideo = false;
+   
 
     let newTabSocket
     let  peerConnVar;
@@ -48,7 +44,7 @@ let videoTracks;
         console.log('heere1')
 
        
-         newTabSocket = io.connect("https://192.168.18.76:3000");
+         newTabSocket = io.connect(process.env.REACT_APP_URL_TO_BACKEND);
         console.log(newTabSocket)
 
         newTabSocket.on("connect", () => {
@@ -168,34 +164,7 @@ let videoTracks;
 
 //swap media on large and small vid element after eeveyr major work is done
             if(remoteStreamVar.active){
-                
-                // const tempLargeStream = largeVideoEle.srcObject; 
-                // const tempSmallStream = smallVideoEle.srcObject; 
-
-
-
-                // setTimeout(()=>{
-                //     largeVideoEle.srcObject = null; 
-                // },100)
-
-                // largeVideoEle.srcObject = tempSmallStream;
-                // largeVideoEle.onloadedmetadata = () => {
-                //     console.log('here')
-                //     largeVideoEle.play().catch((err) => console.error('Error playing large video:', err));
-                // };
-
                
-                // setTimeout(()=>{
-                //     smallVideoEle.srcObject = null;
-
-                // },100);
-               
-                // smallVideoEle.srcObject = tempLargeStream;
-                //  smallVideoEle.onloadedmetadata = () => {
-                //     console.log('here')
-
-                //     smallVideoEle.play().catch((err) => console.error('Error playing small video:', err));
-                // };
 
                                 const tempLargeStream = largeVideoEle.srcObject;
                 const tempSmallStream = smallVideoEle.srcObject;
@@ -229,32 +198,6 @@ let videoTracks;
                 }, 400); // Slight delay before assigning the large stream to the small video
 
          
-
-
-                // tempLargeStream.onloadedmetadata = () => {
-                //     console.log('here')
-                //     largeVideoEle.play().catch((err) => console.error('Error playing large video:', err));
-                // };
-            
-                // if(largeVideoEle.srcObject == null){
-                //     console.log('ehr')
-                // }
-
-
-                // largeVideoEle.onloadedmetadata = () => {
-                //     console.log('here')
-                //     largeVideoEle.play().catch((err) => console.error('Error playing large video:', err));
-                // };
-
-                // smallVideoEle.onloadedmetadata = () => {
-                //     console.log('here')
-
-                //     smallVideoEle.play().catch((err) => console.error('Error playing small video:', err));
-                // };
-
-               
-
-
             }
           
         }
